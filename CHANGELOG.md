@@ -9,10 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- "bootstrap-fedora.sh\* - Main orchestrator (CLI: "--help', "--dry-run, "--install,
+  "--validate")
+- "scripts/@1-initial-setup.sh\* - **TESTED & WORKING**
+- System update (dnf update - 34 packages upgraded)
+- Base dev tools (gcc, cmake, git, gh, htop, tmux, neovim, bat, fd-find)
+- Project directories (_~/projects', "~/.config/development_)
+- RPM Fusion repo detection
+
 ### Planned for v1.1.0 (January 2026)
 
 #### Backup & Restore Pipeline
+
 - `scripts/export-config.sh` – Export system state snapshots
+
   - Package list export (dnf)
   - VSCodium extensions backup
   - Editor settings export (settings.json)
@@ -21,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Target: < 30 seconds export time
 
 - `scripts/restore-config.sh` – Replay from backup
+
   - Package list restoration
   - Extension re-installation
   - Settings application
@@ -33,13 +46,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Disaster recovery documentation
 
 #### Enhanced Documentation
+
 - `docs/ARCHITECTURE.md` – Internal design explanation
+
   - Script interaction diagram
   - Library dependency graph
   - Data flow documentation
   - Extension points for customization
 
 - `docs/CUSTOMIZE.md` – Personalization guide
+
   - How to add packages
   - How to modify Python tools
   - How to add extensions
@@ -55,7 +71,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fedora version compatibility
 
 #### CI/Testing Infrastructure
+
 - `.github/workflows/validate.yml` – Continuous validation
+
   - Shellcheck linting on every push
   - Bash syntax validation
   - Script execution simulation
@@ -68,6 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Asset packaging
 
 #### Enhancements
+
 - Contextual error messages with recovery steps
 - Enhanced logging with more detail
 - Configuration customization UI (optional)
@@ -82,6 +101,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Planned for v1.2.0 (March 2026)
 
 #### Hardware Detection & Optimization
+
 - `scripts/detect-hardware.sh` – Profile system
   - GPU detection (Intel/AMD/NVIDIA)
   - RAM and storage profiling
@@ -91,7 +111,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - JSON-based hardware profile output
 
 #### GPU Acceleration Support
+
 - NVIDIA CUDA setup
+
   - CUDA toolkit installation
   - cuDNN (deep learning libraries)
   - TensorRT (inference optimization)
@@ -105,7 +127,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - GPU availability verification
 
 #### Hardware-Specific Optimization
+
 - Laptop optimization
+
   - Power management configuration
   - Thermal management setup
   - Battery life optimization
@@ -113,6 +137,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Display refresh rate settings
 
 - Workstation optimization
+
   - Maximum performance configuration
   - Cooling strategy optimization
   - Memory optimization
@@ -126,13 +151,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Headless-specific settings
 
 #### Extended Language Support (Optional)
+
 - Node.js/JavaScript stack
+
   - Node.js installation (latest LTS)
   - npm, yarn, pnpm
   - VSCodium extensions
   - Development tools
 
 - Go language stack
+
   - Go installation (latest)
   - gopls (language server)
   - golangci-lint
@@ -147,6 +175,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Development tools
 
 #### Additional Features
+
 - Performance profiling tools (py-spy, memory-profiler)
 - Benchmark utilities and guidelines
 - Advanced documentation for GPU and hardware
@@ -161,18 +190,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Planned for v1.3.0+ (Future)
 
 #### Infrastructure & Automation
+
 - Ansible playbook generation
 - Docker image generation for CI/CD
 - Cloud VM automation (AWS, GCP, Azure templates)
 - Kubernetes manifests for distributed setups
 
 #### User Interface & Tools
+
 - Web-based interactive setup wizard
 - Mobile companion app for monitoring
 - Real-time progress dashboard
 - System metrics visualization
 
 #### Enterprise Features
+
 - Team configuration sharing and synchronization
 - Organization-wide default settings
 - Version pinning and lock files
@@ -181,6 +213,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Compliance reporting
 
 #### Advanced Capabilities
+
 - Remote setup capability over SSH
 - Multi-machine coordination
 - Configuration drift detection
@@ -195,7 +228,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 #### Bootstrap Orchestration (`bootstrap-fedora.sh` - 211 lines)
+
 Main entry point with comprehensive CLI options:
+
 - `--dry-run` – Preview changes without applying
 - `--headless` – Automated mode (no prompts)
 - `--verbose` – Debug output with command trace
@@ -203,6 +238,7 @@ Main entry point with comprehensive CLI options:
 - `--help` – Full usage documentation
 
 Preflight validation (5 checks):
+
 - Fedora OS detection
 - Fedora version validation (40+)
 - Internet connectivity check
@@ -210,6 +246,7 @@ Preflight validation (5 checks):
 - Disk space validation (5GB minimum)
 
 Comprehensive logging:
+
 - Automatic timestamped logs: `logs/bootstrap-YYYYMMDD-HHMMSS.log`
 - Colored, formatted console output
 - 50+ logged checkpoints
@@ -218,6 +255,7 @@ Comprehensive logging:
 #### Shared Libraries (DRY Principle)
 
 **`scripts/lib/logging.sh`** (48 lines)
+
 - Centralized logging with consistent formatting
 - Colored output: info (blue), success (green), warn (yellow), error (red)
 - Automatic timestamps on every log line (YYYY-MM-DD HH:MM:SS)
@@ -226,6 +264,7 @@ Comprehensive logging:
 - Exported functions for use across all scripts
 
 **`scripts/lib/utils.sh`** (89 lines)
+
 - Command existence checks: `command_exists()`
 - Package installation status: `package_installed()`
 - System information: `get_fedora_version()`, `is_fedora()`, `check_internet()`
@@ -239,6 +278,7 @@ Comprehensive logging:
 #### Setup Scripts (Modular, Idempotent)
 
 **`scripts/00-system-base.sh`** (55 lines)
+
 - System package updates via dnf
 - Core development tools: gcc, g++, make, cmake, kernel-devel, openssl-devel, libffi-devel
 - Shell utilities: tmux, zsh, fzf, direnv
@@ -248,6 +288,7 @@ Comprehensive logging:
 - Idempotent (checks if installed before installing)
 
 **`scripts/10-python-dev.sh`** (76 lines)
+
 - uv installation (from official astral.sh installer)
 - pipx installation (via pip3)
 - Global Python tools via pipx:
@@ -262,6 +303,7 @@ Comprehensive logging:
 - Installation verification with version checks
 
 **`scripts/20-vscodium.sh`** (106 lines)
+
 - VSCodium repository setup (Fedora)
 - GPG key import and verification
 - VSCodium package installation
@@ -277,6 +319,7 @@ Comprehensive logging:
 - 4-space indentation (spaces, no tabs)
 
 **`scripts/99-validate.sh`** (68 lines)
+
 - System packages verification
 - Python tools accessibility check
 - VSCodium and extensions validation
@@ -289,6 +332,7 @@ Comprehensive logging:
 #### Documentation
 
 **`README.md`** (260 lines)
+
 - User-focused quick-start guide (3 lines to setup)
 - What gets installed (categorized breakdown)
 - Usage options (all 6 modes explained with examples)
@@ -300,6 +344,7 @@ Comprehensive logging:
 - Support and contribution guidelines
 
 **`SETUP_SPEC.md`** (347 lines)
+
 - Complete target environment specification
 - Full package inventory with descriptions
 - Setup architecture and design explanation
@@ -312,6 +357,7 @@ Comprehensive logging:
 - Future enhancement roadmap (Phase 2 & 3)
 
 **`ROADMAP.md`** (File created December 20, 2025)
+
 - Development roadmap for all phases
 - Quick reference of files needed
 - Step-by-step creation plan
@@ -321,6 +367,7 @@ Comprehensive logging:
 - Success criteria for each phase
 
 **`CHANGELOG.md`** (this file)
+
 - Version history and release notes
 - Detailed feature lists per release
 - Known limitations per version
@@ -330,6 +377,7 @@ Comprehensive logging:
 - Support information
 
 #### Configuration Templates
+
 - `config/packages.txt` – System packages reference list
 - `config/python-tools.txt` – Python tools reference list
 - `config/extensions.txt` – VSCodium extensions reference list
@@ -337,6 +385,7 @@ Comprehensive logging:
 ### Design & Quality
 
 #### Architecture Principles
+
 - **Idempotency** – Every script checks before installing, safe to run multiple times
 - **Modularity** – Each script handles one concern, can be re-run independently
 - **Logging** – All operations timestamped and traceable to `logs/`
@@ -347,6 +396,7 @@ Comprehensive logging:
 - **DRY Principle** – Shared libraries eliminate duplication
 
 #### Technology Choices
+
 - **Python Tooling:** uv + pipx (modern, lightweight vs Conda)
 - **Desktop:** KDE Plasma (latest, feature-rich vs GNOME)
 - **Editor:** VSCodium (open-source, non-telemetry vs VS Code)
@@ -355,20 +405,20 @@ Comprehensive logging:
 
 ### Statistics
 
-| Metric | Value |
-|--------|-------|
-| **Total Lines** | 1,360+ |
-| **Shell Scripts** | 8 files |
-| **Code Lines** | 553 |
-| **Documentation Lines** | 807+ |
-| **System Packages** | 30+ |
-| **Python Tools** | 8 |
-| **VSCodium Extensions** | 4 |
-| **CLI Modes** | 6 |
-| **Preflight Checks** | 5 |
-| **Logged Checkpoints** | 50+ |
-| **Utility Functions** | 20+ |
-| **Setup Time** | 10-15 minutes |
+| Metric                  | Value         |
+| ----------------------- | ------------- |
+| **Total Lines**         | 1,360+        |
+| **Shell Scripts**       | 8 files       |
+| **Code Lines**          | 553           |
+| **Documentation Lines** | 807+          |
+| **System Packages**     | 30+           |
+| **Python Tools**        | 8             |
+| **VSCodium Extensions** | 4             |
+| **CLI Modes**           | 6             |
+| **Preflight Checks**    | 5             |
+| **Logged Checkpoints**  | 50+           |
+| **Utility Functions**   | 20+           |
+| **Setup Time**          | 10-15 minutes |
 
 ### Known Limitations
 
@@ -394,6 +444,7 @@ Comprehensive logging:
 ## Development Roadmap
 
 ### v1.1.0 – Backup & Restore (January 2026)
+
 - **Start:** December 21, 2025
 - **Release:** January 17, 2026
 - **Duration:** 3-4 weeks
@@ -401,6 +452,7 @@ Comprehensive logging:
 - **Features:** Backup/restore pipeline, advanced docs, CI/testing
 
 ### v1.2.0 – Hardware & GPU (March 2026)
+
 - **Start:** January 18, 2026
 - **Release:** March 17, 2026
 - **Duration:** 8 weeks
@@ -408,6 +460,7 @@ Comprehensive logging:
 - **Features:** Hardware detection, GPU acceleration, extended languages
 
 ### v1.3.0+ – Enterprise (Future)
+
 - **Start:** March 18, 2026+
 - **Focus:** Infrastructure automation, UI/tools, enterprise features
 - **Timeline:** TBD based on community feedback
@@ -417,6 +470,7 @@ Comprehensive logging:
 ## Contributing
 
 To contribute to this project:
+
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/your-feature`)
 3. Make your changes
