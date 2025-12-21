@@ -1,164 +1,100 @@
 # Fedora Python Development Environment Setup
 
-A comprehensive, reproducible setup guide for configuring Fedora as a Python development environment with VSCodium. Designed for quick redeployment across multiple machines and backup configurations.
+![Fedora](https://img.shields.io/badge/Fedora-40+-blue?logo=fedora&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.12+-yellow?logo=python&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Status](https://img.shields.io/badge/Status-Early%20Alpha-orange)
+
+**⚠️ DEVELOPMENT STATUS: EARLY ALPHA**
+This project is currently under active refactoring. Testing is currently limited to syntax validation and dry-runs on macOS. Full end-to-end testing on a native Fedora machine is pending. Use with caution or stick to `--dry-run` mode to preview changes.
+
+A comprehensive, reproducible setup guide for configuring Fedora as a professional Python development environment. Designed for consistency across machines using a modular, idempotent architecture.
 
 ## 📋 Features
 
-- ✅ **Reproducible Setup**: Automate everything with shell scripts for consistency across machines
-- ✅ **Python 3 Ready**: Latest Python with virtual environment support (pyenv, venv)
-- ✅ **VSCodium Integration**: Open-source Visual Studio Code alternative pre-configured for Python
-- ✅ **Git Configuration**: Pre-setup Git with your GitHub credentials
-- ✅ **Development Tools**: Essential CLI tools (curl, wget, git, htop, tmux, neovim, etc.)
-- ✅ **Package Management**: DNF with optimizations for faster package installation
-- ✅ **System Backup**: Automated backup/restore scripts for configuration portability
-- ✅ **Hardware Agnostic**: Tested on common laptop configurations (Intel/AMD)
+- ✅ **One-Command Setup**: Orchestrated via `bootstrap-fedora.sh`
+- ✅ **Idempotent**: Safe to run multiple times; checks before installing
+- ✅ **Modern Python**: `uv` (fast installer), `pipx` (isolated tools), and Python 3.12+
+- ✅ **VSCodium**: Telemetry-free VS Code with Python, Ruff, and GitLens pre-configured
+- ✅ **System Base**: Optimized DNF, RPM Fusion, Zsh, Tmux, and essential build tools
+- ✅ **Observability**: Detailed, color-coded logging with timestamped history
+- ✅ **Dry Run Mode**: Preview all actions without modifying your system
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- Fresh Fedora 40+ installation (or existing Fedora system)
+- Fedora Workstation 40+
+- Sudo access
 - Internet connection
-- ~5-10 GB disk space for development tools
-- Sudo access required
 
-### One-Line Installation
+### Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/KnowOneActual/fedora-dev-setup.git
+# 1. Clone the repository
+git clone [https://github.com/KnowOneActual/fedora-dev-setup.git](https://github.com/KnowOneActual/fedora-dev-setup.git)
 cd fedora-dev-setup
 
-# Run the main setup script
-bash scripts/01-initial-setup.sh
+# 2. (Optional) Run a safe dry-run to see what will happen
+./bootstrap-fedora.sh --dry-run
+
+# 3. Run the full installer
+sudo ./bootstrap-fedora.sh --install
+
 ```
 
-### Step-by-Step Setup
+### Verification Only
 
-Follow the numbered scripts in order for best results:
+If you just want to check if your system meets the requirements or if a previous install worked:
 
-1. **[01-initial-setup.sh](scripts/01-initial-setup.sh)** - System updates, DNF optimization, essential packages
-2. **[02-git-config.sh](scripts/02-git-config.sh)** - Git user configuration and SSH keys
-3. **[03-python-setup.sh](scripts/03-python-setup.sh)** - Python environment (pyenv, virtual environments, pip tools)
-4. **[04-vscodium-setup.sh](scripts/04-vscodium-setup.sh)** - VSCodium installation and Python extension configuration
-5. **[05-dev-tools.sh](scripts/05-dev-tools.sh)** - Additional development tools and utilities
-6. **[06-config-backup.sh](scripts/06-config-backup.sh)** - Backup/restore your configurations
+```bash
+./bootstrap-fedora.sh --validate
 
-See [SETUP_GUIDE.md](docs/SETUP_GUIDE.md) for detailed step-by-step instructions.
+```
 
 ## 📁 Directory Structure
 
-```
+```text
 fedora-dev-setup/
-├── scripts/                    # Automated setup scripts (numbered for execution order)
-│   ├── 01-initial-setup.sh
-│   ├── 02-git-config.sh
-│   ├── 03-python-setup.sh
-│   ├── 04-vscodium-setup.sh
-│   ├── 05-dev-tools.sh
-│   └── 06-config-backup.sh
-├── configs/                    # Configuration files
-│   ├── .vscode/
-│   │   ├── settings.json       # VSCodium default settings
-│   │   └── extensions.json     # Recommended extensions
-│   ├── .bashrc                 # Bash configuration
-│   ├── .gitconfig              # Git configuration template
-│   └── dnf.conf                # DNF package manager config
-├── docs/                       # Documentation
-│   ├── SETUP_GUIDE.md          # Detailed step-by-step guide
-│   ├── TROUBLESHOOTING.md      # Common issues and solutions
-│   └── HARDWARE_NOTES.md       # Hardware-specific configuration
-├── backup/                     # Backup and restore utilities
-│   └── backup-configs.sh       # Backup your development environment
-├── tests/                      # Verification scripts
-│   └── verify-setup.sh         # Test that everything is configured correctly
-├── WARP.md                     # Project work log and improvements
-├── CHANGELOG.md                # Version history
-└── README.md                   # This file
+├── bootstrap-fedora.sh      # Main entry point (Run this!)
+├── logs/                    # Timestamped installation logs
+├── scripts/
+│   ├── 00-system-base.sh    # DNF, Repos, Base Tools
+│   ├── 10-python-dev.sh     # Python, uv, pipx, Global Tools
+│   ├── 20-vscodium.sh       # Editor, Extensions, Settings
+│   ├── 99-validate.sh       # System Verification
+│   └── lib/                 # Shared Libraries
+│       ├── logging.sh       # Color output & log files
+│       └── utils.sh         # Helper functions
+├── docs/
+│   ├── SETUP_SPEC.md        # Technical specifications
+│   ├── SETUP_GUIDE.md       # Detailed walkthrough
+│   └── ROADMAP.md           # Development plans
+└── README.md                # This file
+
 ```
 
-## 🔧 Configuration Options
+## 🔧 What Gets Installed
 
-Before running the setup, you can customize behavior with environment variables:
-
-```bash
-# Custom Python version
-export PYTHON_VERSION="3.12"
-
-# Custom VSCodium extensions
-export INSTALL_EXTENSIONS=true
-
-# Skip interactive prompts
-export AUTO_APPROVE=true
-
-# Dry run (show what would happen without executing)
-export DRY_RUN=true
-
-bash scripts/01-initial-setup.sh
-```
-
-## 📚 Documentation
-
-- **[SETUP_GUIDE.md](docs/SETUP_GUIDE.md)** - Complete step-by-step walkthrough with explanations
-- **[TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** - Common issues and how to resolve them
-- **[HARDWARE_NOTES.md](docs/HARDWARE_NOTES.md)** - Hardware-specific considerations (Intel/AMD, WiFi, GPU)
-- **[WARP.md](WARP.md)** - Project development log and optimization notes
-
-## 💾 Backup & Restore
-
-To backup your entire development environment:
-
-```bash
-bash scripts/06-config-backup.sh --backup
-```
-
-To restore on a new machine:
-
-```bash
-bash scripts/06-config-backup.sh --restore /path/to/backup.tar.gz
-```
-
-## ✅ Verification
-
-After setup, verify everything is installed correctly:
-
-```bash
-bash tests/verify-setup.sh
-```
-
-## 🛠️ System Requirements
-
-| Requirement | Minimum | Recommended |
-|------------|---------|-------------|
-| Fedora Version | 39 | 40+ |
-| Disk Space | 10 GB | 20 GB |
-| RAM | 4 GB | 8+ GB |
-| Processor | Any | Recent (Intel/AMD) |
-| Internet | Required | Required |
-
-## 🖥️ Tested Hardware
-
-- ✅ Dell XPS 13 (Intel, 8GB RAM)
-- ✅ Lenovo ThinkPad (Intel, 16GB RAM)
-- ✅ Framework Laptop (AMD, 16GB RAM)
-- ✅ Generic Intel i5 laptops
-- ✅ Generic AMD Ryzen laptops
-
-*Have you tested on other hardware? Please submit issues with your configuration!*
+| Phase | Components |
+| --- | --- |
+| **System** | DNF optimizations, RPM Fusion, GCC, Make, Git, Zsh, Tmux, Htop, Riplgrep, FD |
+| **Python** | Python 3.12, `uv` (installer), `pipx` (tool manager) |
+| **Tools** | Black, Ruff, Mypy, Pytest, IPython (all installed via pipx) |
+| **Editor** | VSCodium with Python, Ruff, and GitLens extensions |
 
 ## 🤝 Contributing
 
-Improvements, bug reports, and suggestions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+This project is in active development. We welcome bug reports and PRs!
+
+1. Fork the repo
+2. Create a feature branch
+3. Submit a Pull Request
 
 ## 📝 License
 
-Distributed under the MIT License. See [LICENSE](LICENSE) for details.
+Distributed under the MIT License. See [LICENSE](https://www.google.com/search?q=LICENSE) for details.
 
-## 🆘 Support
-
-- 📖 Check [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) first
-- 🐛 Open an [issue](https://github.com/KnowOneActual/fedora-dev-setup/issues) on GitHub
-- 💬 Start a [discussion](https://github.com/KnowOneActual/fedora-dev-setup/discussions)
 
 ## 📊 Status
 
