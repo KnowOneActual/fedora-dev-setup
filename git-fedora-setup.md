@@ -1,204 +1,106 @@
-# Git Authentication Setup on Fedora: SSH and GPG Options
 
-You have two solid paths forward for passwordless Git authentication on Fedora: **SSH keys** (recommended for simplicity) or **transferring your existing GPG key** from your Mac. This guide walks you through both approaches so you can choose what fits your workflow.
+# Updated Git Authentication Setup on Fedora: SSH and GPG Options (with HTTPS Fix)
 
-## Option 1: SSH Key Authentication (Recommended for Most Users)
+**Updated December 21, 2025** - Added prominent HTTPS-to-SSH conversion section for existing repos.
 
-SSH is the simplest and most common approach. You'll generate a unique key pair on your Fedora machine and register the public key with GitHub.
+You have two solid paths forward for passwordless Git authentication on Fedora: **SSH keys** (recommended for simplicity) or **transferring your existing GPG key** from your Mac.
+
+## 🚨 FIRST: Fix Existing HTTPS Repos (Most Common Issue)
+
+**GitHub disabled password auth in 2021.** If you see `remote: Invalid username or token. Password authentication is not supported`, your repo is still using HTTPS.
+
+### Check your remote:
+```
+git remote -v
+```
+
+**HTTPS (BROKEN):** `https://github.com/username/repo.git`  
+**SSH (GOOD):** `git@github.com:username/repo.git`
+
+### Convert SINGLE repo:
+```
+git remote set-url origin git@github.com:YOUR_USERNAME/YOUR_REPO.git
+git remote -v  # Verify
+```
+
+### Bulk convert ALL repos in directory:
+```
+cd ~/github_projects  # or your projects dir
+for repo in */; do
+  cd "$repo"
+  CURRENT_URL=$(git remote get-url origin)
+  if [[ $CURRENT_URL == https://github.com/* ]]; then
+    NEW_URL=$(echo $CURRENT_URL | sed 's|https://github.com/|git@github.com:|')
+    git remote set-url origin "$NEW_URL"
+    echo "✅ Converted $repo"
+  else
+    echo "⏭️  $repo already uses SSH"
+  fi
+  cd ..
+done
+```
+
+**Test:** `git push` should now work without passwords!
+
+---
+
+## Option 1: SSH Key Authentication (Recommended)
 
 ### Generate your SSH key
-
-```bash
+```
 ssh-keygen -t ed25519 -C "your_email@example.com"
 ```
 
-Replace `your_email@example.com` with your actual GitHub email. The `-t ed25519` flag generates a modern, secure key type that GitHub strongly prefers (it's faster and smaller than RSA while maintaining better security).
-
-When prompted for a file location, press Enter to accept the default (`~/.ssh/id_ed25519`). When prompted for a passphrase, you have two choices:
-- **With passphrase**: Adds extra security—you'll need to enter it once per session (handled by ssh-agent, not GitHub)
-- **Without passphrase**: Quickest path, especially if you already have disk-level encryption
-
-### Add the key to your ssh-agent
-
-```bash
+### Add key to ssh-agent
+```
 eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_ed25519
 ```
 
-The first command starts the SSH agent. The second adds your key to it, so you'll only need to enter the passphrase once per session (if you set one).
-
 ### Register with GitHub
-
-Copy your public key:
-
-```bash
+```
 cat ~/.ssh/id_ed25519.pub
 ```
+1. GitHub → Settings → SSH and GPG keys → New SSH key
+2. Paste entire key 
+3. Name: "Fedora dev machine"
 
-Then:
-1. Go to GitHub → Settings → SSH and GPG keys
-2. Click "New SSH key"
-3. Paste your entire public key (starts with `ssh-ed25519`)
-4. Give it a descriptive name like "Fedora dev machine"
-
-### Test the connection
-
-```bash
+### Test connection
+```
 ssh -T git@github.com
 ```
 
-You should see: `Hi [username]! You've successfully authenticated...`
-
-### Configure Git to use SSH by default
-
-```bash
+### Configure Git identity
+```
 git config --global user.name "Your Name"
 git config --global user.email "your_email@example.com"
 ```
 
-From now on, use SSH URLs when cloning: `git clone git@github.com:username/repo.git` (not `https://`)
-
 ---
 
-## Option 2: Transfer Your Existing GPG Key from Mac to Fedora
+## Troubleshooting
 
-If you want to maintain signing consistency with your Mac setup, you can transfer your GPG key. This is more complex but useful if you're already using GPG for commit signing or encryption elsewhere.
-
-### On your Mac (source machine)
-
-First, list your keys to find the one you want:
-
-```bash
-gpg --list-keys
+**SSH fails:** `ssh -Tvvv git@github.com`  
+**No keys loaded:** `ssh-add -l`  
+**Multiple keys:** Create `~/.ssh/config`:
+```
+Host github.com
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519
+  IdentitiesOnly yes
 ```
 
-You'll see output like:
+**Persist ssh-agent** (add to `~/.bashrc`):
 ```
-pub   rsa4096/ABCDFE01 2023-01-15
-uid   [ultimate] Your Name <your_email@example.com>
-```
-
-Export both public and secret keys (replace `ABCDFE01` with your actual key ID):
-
-```bash
-gpg --output mygpgkey_pub.gpg --armor --export ABCDFE01
-gpg --output mygpgkey_sec.gpg --armor --export-secret-key ABCDFE01
-```
-
-This creates two ASCII-armored files. Transfer them securely to your Fedora machine via `scp`:
-
-```bash
-scp mygpgkey_pub.gpg mygpgkey_sec.gpg user@fedora_machine:~/
-```
-
-### On Fedora (destination machine)
-
-Import the keys:
-
-```bash
-gpg --import ~/mygpgkey_pub.gpg
-gpg --allow-secret-key-import --import ~/mygpgkey_sec.gpg
-```
-
-Edit the key to trust it:
-
-```bash
-gpg --edit-key your_email@example.com
-```
-
-At the `gpg>` prompt:
-- Type `trust`
-- Select option `5` for ultimate trust
-- Type `quit`
-
-Clean up the temporary files:
-
-```bash
-rm ~/mygpgkey_pub.gpg ~/mygpgkey_sec.gpg
-```
-
-### Configure Git to use your GPG key
-
-Find your key ID:
-
-```bash
-gpg --list-keys --keyid-format=short
-```
-
-Configure Git globally:
-
-```bash
-git config --global user.signingkey ABCDFE01
-git config --global commit.gpgsign true
-git config --global tag.gpgsign true
-```
-
-Now all your commits and tags will be automatically signed.
-
----
-
-## Option 3: Hybrid Approach—Use SSH for Authentication, GPG for Signing
-
-Modern Git supports signing commits with SSH keys, giving you the best of both worlds: simple SSH authentication plus signed commits without managing a separate GPG key. This is growing more common.
-
-### If you've already set up SSH (Option 1)
-
-Configure Git to use your SSH key for signing:
-
-```bash
-git config --global gpg.format ssh
-git config --global user.signingkey ~/.ssh/id_ed25519.pub
-git config --global commit.gpgsign true
-```
-
-Then add your SSH key to GitHub as a **signing key** (separate from auth key) in Settings → SSH and GPG keys.
-
----
-
-## Comparison: Which Path?
-
-| Aspect | SSH Only | GPG (Transferred) | SSH + GPG Signing |
-|--------|----------|------------------|-------------------|
-| Setup complexity | Simple | Moderate (key transfer needed) | Moderate |
-| Authentication | Yes | No (separate concern) | Yes |
-| Commit signing | Optional command flag | Automatic | Automatic |
-| Cross-machine consistency | Key per machine | Same key everywhere | SSH key per machine |
-| Best for | Quick setup, single machine | Multi-machine signing | Power users wanting everything |
-
----
-
-## Pro Tips for Fedora
-
-### Persist ssh-agent across sessions
-
-Add this to your `~/.bashrc`:
-
-```bash
 if [ -z "$SSH_AUTH_SOCK" ]; then
-    eval "$(ssh-agent -s)"
-    ssh-add ~/.ssh/id_ed25519
+  eval "$(ssh-agent -s)"
+  ssh-add ~/.ssh/id_ed25519
 fi
 ```
 
-### Git Credential Manager (for HTTPS users)
-
-Fedora also supports Git Credential Manager if you're using HTTPS (though SSH is preferred):
-
-```bash
-sudo dnf install git-credential-manager
-git-credential-manager-core configure
-```
-
-### Check what's configured globally
-
-```bash
-git config --list --global
-```
-
 ---
 
-## Recommended Path
-
-For quick setup and avoiding repeated authentication, **Option 1 (SSH)** is recommended. It's the fastest to implement, removes the authentication friction entirely, and works seamlessly across all your repositories. If you later decide you want commit signing, you can layer on SSH-based signing (Option 3) without redoing authentication.
-
-The GPG transfer (Option 2) makes sense if you're signing commits across multiple machines and want cryptographic continuity with your Mac setup.
+## Pro Tips
+- Always clone SSH: `git clone git@github.com:username/repo.git`
+- Check config: `git config --list --glob
