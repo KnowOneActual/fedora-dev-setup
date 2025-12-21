@@ -63,7 +63,9 @@ else
     "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
     "python.analysis.typeCheckingMode": "basic",
     "files.trimTrailingWhitespace": true,
-    "workbench.colorTheme": "Default Dark Modern"
+    "workbench.colorTheme": "Default Dark Modern",
+    "git.autofetch": true,
+    "errorLens.enabled": true
 }
 EOF
     chown "$ACTUAL_USER:$ACTUAL_USER" "$SETTINGS_FILE"
@@ -73,19 +75,46 @@ fi
 #######################################
 # 3. Install Extensions
 #######################################
+# Combined list: Project Defaults + User Favorites
 EXTENSIONS=(
+    # --- Core Python Stack ---
     "ms-python.python"
-    "charliermarsh.ruff"
-    "ms-python.mypy-type-checker"
+    "charliermarsh.ruff"            # Linter/Formatter (Fast)
+    "ms-python.mypy-type-checker"   # Static Typing
+    "ms-python.debugpy"             # Debugging
+
+    # --- Git Integration ---
     "eamodio.gitlens"
     "mhutchie.git-graph"
-    "pkief.material-icon-theme"
-    "usernamehw.errorlens"          # Inline errors
-    "mechatroner.rainbow-csv"       # CSV highlighting
-    "yzhang.markdown-all-in-one"    # Markdown tools
-    "esbenp.prettier-vscode"        # Formatting
+
+    # --- Formatting & Linting ---
+    "esbenp.prettier-vscode"
+    "dbaeumer.vscode-eslint"
+    "rvest.vs-code-prettier-eslint"
+    "stylelint.vscode-stylelint"
+
+    # --- Productivity & AI ---
+    "usernamehw.errorlens"          # Inline errors (Crucial)
     "codeium.codeium"               # AI Autocomplete
-    "christian-kohler.path-intellisense" # File path autocompletion
+    "christian-kohler.path-intellisense"
+    "formulahendry.auto-rename-tag"
+    "formulahendry.code-runner"
+    "yzhang.markdown-all-in-one"    # Markdown Power tools
+    "tomoki1207.pdf"
+
+    # --- Visualization & Data ---
+    "mechatroner.rainbow-csv"       # CSV highlighting
+    "grapecity.gc-excelviewer"      # Excel viewer
+    "pkief.material-icon-theme"     # Icons
+    "catppuccin.catppuccin-vsc"     # Theme
+    "felixicaza.andromeda"          # Theme
+    "johnpapa.vscode-peacock"       # Workspace coloring
+
+    # --- Web/Remote ---
+    "htmlhint.vscode-htmlhint"
+    "webhint.vscode-webhint"
+    "nishikanta12.live-server-lite"
+    "jeanp413.open-remote-ssh"      # Open Source SSH Remote
 )
 
 log_info "Installing extensions..."
@@ -95,10 +124,11 @@ for ext in "${EXTENSIONS[@]}"; do
         log_info "[DRY RUN] Would install extension: $ext"
     else
         # Run as user, not root
-        if sudo -u "$ACTUAL_USER" codium --install-extension "$ext" --force; then
+        # We use --force to update if already installed
+        if sudo -u "$ACTUAL_USER" codium --install-extension "$ext" --force >/dev/null 2>&1; then
             log_success "Installed $ext"
         else
-            log_warn "Failed to install $ext"
+            log_warn "Failed to install $ext (or already latest)"
         fi
     fi
 done
