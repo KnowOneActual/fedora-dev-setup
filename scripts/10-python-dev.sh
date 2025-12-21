@@ -13,26 +13,31 @@ log_header "Phase 2: Python Environment Setup"
 check_root
 check_internet
 
+# Determine the actual user (fallback to current user if not sudo)
+ACTUAL_USER="${SUDO_USER:-$(whoami)}"
+
 #######################################
 # 1. Install uv (Fast Python Installer)
 #######################################
 log_info "Installing uv (extremely fast Python package installer)..."
 
 if ! command_exists "uv"; then
-    # uv installs to ~/.cargo/bin or ~/.local/bin usually, but we want it system-wide for dev setup
-    # or we install it to /usr/local/bin manually to ensure visibility
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-    
-    # Ensure it's in the path for the current session
-    export PATH="$HOME/.cargo/bin:$PATH"
-    
-    # Persist for user
-    ensure_in_path 'export PATH="$HOME/.cargo/bin:$PATH"' "$HOME/.bashrc" "$SUDO_USER"
-    
-    if command_exists "uv"; then
-        log_success "uv installed successfully"
+    if [[ "${DRY_RUN:-}" == "true" ]]; then
+        log_info "[DRY RUN] Would download and install uv"
+        # Mock install for the rest of the script
+        export PATH="$HOME/.cargo/bin:$PATH"
     else
-        log_warn "uv installed but not found in PATH. You may need to restart shell."
+        # Install to explicit path to ensure visibility
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        export PATH="$HOME/.cargo/bin:$PATH"
+        
+        ensure_in_path 'export PATH="$HOME/.cargo/bin:$PATH"' "$HOME/.bashrc" "$ACTUAL_USER"
+        
+        if command_exists "uv"; then
+            log_success "uv installed successfully"
+        else
+            log_warn "uv installed but not found in PATH. You may need to restart shell."
+        fi
     fi
 else
     log_info "uv is already installed"
@@ -44,12 +49,14 @@ fi
 log_info "Installing pipx..."
 
 if ! command_exists "pipx"; then
-    # We install pipx via dnf or pip. DNF is safer for system integration on Fedora.
+    # In dry run, we use the library function which handles mocking
     install_dnf_packages "pipx"
     
-    # Ensure path is set up
-    sudo -u "$SUDO_USER" pipx ensurepath
-    log_success "pipx installed"
+    if [[ "${DRY_RUN:-}" != "true" ]]; then
+        # Ensure path is set up
+        sudo -u "$ACTUAL_USER" pipx ensurepath
+        log_success "pipx installed"
+    fi
 else
     log_info "pipx is already installed"
 fi
@@ -57,7 +64,6 @@ fi
 #######################################
 # 3. Install Global Python Tools
 #######################################
-# We use pipx for these to verify they are isolated and don't break system python
 TOOLS=(
     "black"         # Formatter
     "ruff"          # Fast Linter
@@ -72,15 +78,20 @@ TOOLS=(
 log_info "Installing global Python tools via pipx..."
 
 for tool in "${TOOLS[@]}"; do
-    if ! sudo -u "$SUDO_USER" pipx list | grep -q "$tool"; then
-        log_info "Installing $tool..."
-        if sudo -u "$SUDO_USER" pipx install "$tool"; then
-            log_success "$tool installed"
-        else
-            log_error "Failed to install $tool"
-        fi
+    if [[ "${DRY_RUN:-}" == "true" ]]; then
+        log_info "[DRY RUN] Would install: $tool"
     else
-        log_info "$tool already installed"
+        # Check if installed
+        if ! sudo -u "$ACTUAL_USER" pipx list | grep -q "$tool"; then
+            log_info "Installing $tool..."
+            if sudo -u "$ACTUAL_USER" pipx install "$tool"; then
+                log_success "$tool installed"
+            else
+                log_error "Failed to install $tool"
+            fi
+        else
+            log_info "$tool already installed"
+        fi
     fi
 done
 
@@ -94,7 +105,9 @@ validate_command "pipx"
 validate_command "python3"
 
 # Check a few pipx tools
-if sudo -u "$SUDO_USER" pipx list | grep -q "black"; then
+if [[ "${DRY_RUN:-}" == "true" ]]; then
+    log_success "[DRY RUN] Global tools validation passed (mock)"
+elif sudo -u "$ACTUAL_USER" pipx list | grep -q "black"; then
     log_success "Global tools accessible"
 else
     log_warn "Global tools installed but might need a shell restart to be in PATH"
