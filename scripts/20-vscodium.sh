@@ -80,6 +80,12 @@ EXTENSIONS=(
     "eamodio.gitlens"
     "mhutchie.git-graph"
     "pkief.material-icon-theme"
+    "usernamehw.errorlens"          # Inline errors
+    "mechatroner.rainbow-csv"       # CSV highlighting
+    "yzhang.markdown-all-in-one"    # Markdown tools
+    "esbenp.prettier-vscode"        # Formatting
+    "codeium.codeium"               # AI Autocomplete
+    "christian-kohler.path-intellisense" # File path autocompletion
 )
 
 log_info "Installing extensions..."
