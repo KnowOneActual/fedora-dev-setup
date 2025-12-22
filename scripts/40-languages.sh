@@ -87,8 +87,7 @@ else
         sudo -u "$ACTUAL_USER" curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
             sudo -u "$ACTUAL_USER" sh -s -- -y
         
-        # FIX: Ensure the user's shell loads Rust environment persistently
-        # Rustup usually adds this, but we force it to be sure, especially for zsh
+        # Ensure the user's shell loads Rust environment persistently
         ensure_in_path '. "$HOME/.cargo/env"' "$ACTUAL_HOME/.bashrc" "$ACTUAL_USER"
         ensure_in_path '. "$HOME/.cargo/env"' "$ACTUAL_HOME/.zshrc" "$ACTUAL_USER"
 
@@ -117,8 +116,9 @@ else
     if command_exists "go"; then
         log_success "Go:   $(go version | awk '{print $3}')"
     fi
-    # Use the full path or user context to verify rustc if it's not in root's PATH
-    if sudo -u "$ACTUAL_USER" command -v rustc >/dev/null; then
+    
+    # FIX: Use 'sh -c' to run the built-in 'command' inside sudo [SC2232]
+    if sudo -u "$ACTUAL_USER" sh -c "command -v rustc" >/dev/null 2>&1; then
          RUST_VER=$(sudo -u "$ACTUAL_USER" rustc --version | awk '{print $2}')
          log_success "Rust: $RUST_VER"
     elif command_exists "rustc"; then
