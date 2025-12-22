@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.2.1] - 2025-12-22
 
 ### Fixed
-- **Python Setup** (`scripts/10-python-dev.sh`): Fixed `uv` installation running as root; it now correctly installs to the user's `~/.local/bin` and updates the user's `PATH`.
+- **CI** (`.github/workflows/validate.yml`): Fixed flaky ShellCheck action by switching to manual install and excluded false positives (SC1091, SC2016).- **Python Setup** (`scripts/10-python-dev.sh`): Fixed `uv` installation running as root; it now correctly installs to the user's `~/.local/bin` and updates the user's `PATH`.
 - **VSCodium** (`scripts/20-vscodium.sh`): Resolved `EACCES` permission errors by recursively enforcing user ownership on `~/.config/VSCodium` before installing extensions.
 - **Hardware Detection** (`scripts/detect-hardware.sh`):
   - Added fallback logic for empty chassis detection (defaults to "desktop").
