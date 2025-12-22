@@ -46,9 +46,11 @@ for tool in "${PYTHON_TOOLS[@]}"; do
     fi
 done
 
-# Check uv specifically in user's home (since root can't see it)
-if sudo -u "$ACTUAL_USER" test -f "$ACTUAL_HOME/.local/bin/uv" || \
-   sudo -u "$ACTUAL_USER" test -f "$ACTUAL_HOME/.cargo/bin/uv"; then
+# FIX: Check uv specifically in user's home, BUT respect DRY_RUN
+if [[ "${DRY_RUN:-}" == "true" ]]; then
+    log_success "[DRY RUN] uv validation passed (mock)"
+elif sudo -u "$ACTUAL_USER" test -f "$ACTUAL_HOME/.local/bin/uv" || \
+     sudo -u "$ACTUAL_USER" test -f "$ACTUAL_HOME/.cargo/bin/uv"; then
     log_success "uv is installed (user local)"
 else
     log_error "uv is missing from ~/.local/bin or ~/.cargo/bin"
