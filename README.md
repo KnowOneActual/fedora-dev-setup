@@ -6,6 +6,8 @@
 ![AMD](https://img.shields.io/badge/GPU-AMD%20ROCm-red?logo=amd)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
+# Still in testing phase! 
+
 A comprehensive, reproducible setup guide for configuring Fedora as a professional development workstation.
 
 ## 📋 Features
