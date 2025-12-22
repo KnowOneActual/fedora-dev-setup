@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## [1.2.0] - 2025-12-22
+
+### Added
+- **Hardware Detection** (`scripts/detect-hardware.sh`): Generates a JSON system profile identifying GPU vendor and Chassis type (Laptop/Desktop).
+- **GPU Setup** (`scripts/30-gpu-setup.sh`): Automatically installs NVIDIA CUDA drivers or AMD ROCm stacks based on detection.
+- **Hardware Optimization** (`scripts/31-hardware-optimization.sh`): Applies TLP for laptops and performance governors for desktops.
+- **Extended Language Stack** (`scripts/40-languages.sh`): Installs Node.js, Go, and Rust toolchains.
+- **Shell Configuration** (`scripts/25-setup-zsh.sh`): Dedicated setup for Oh My Zsh, plugins (syntax highlighting, autosuggestions), and custom "Power User" aliases.
+
+### Changed
+- **Orchestrator**: `bootstrap-fedora.sh` now executes the Phase 2.5 and Phase 3 scripts.
+- **Dependencies**: Added `pciutils`, `jq`, and `util-linux` for hardware profiling.
 
 ## [1.1.0] - 2025-12-22
 

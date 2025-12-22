@@ -122,9 +122,39 @@ Rehydrates a system from a snapshot.
 
 ---
 
-## 5. Usage Modes
+## 5. Hardware Abstraction Layer (HAL)
 
-### Standard Installation
+Version 1.2.0 introduces a hardware awareness layer to adapt the installation to the physical machine.
+
+### Detection Logic (`scripts/detect-hardware.sh`)
+- **GPU:** Scans `lspci` for vendor IDs (NVIDIA vs AMD vs Intel).
+- **Chassis:** Queries `hostnamectl` or checks `/sys/class/power_supply` for batteries.
+- **Output:** Writes a profile to `/tmp/fedora-hardware-profile.json`:
+  ```json
+  {
+    "chassis": "laptop",
+    "gpu": { "vendor": "nvidia", "model": "RTX 4060" },
+    "ram_gb": 32
+  }
+  
+  ### Adaptive Execution
+
+* **GPU Script (`30-gpu-setup.sh`):** Reads the JSON profile.
+* If `nvidia`: Enables RPM Fusion Non-Free, installs `akmod-nvidia`, `cuda`.
+* If `amd`: Installs `rocm-hip`, `opencl`.
+
+
+* **Optimization Script (`31-hardware-optimization.sh`):** Reads the JSON profile.
+* If `laptop`: Installs/Enables `tlp`.
+* If `desktop`: Sets CPU governor to `performance`.
+
+
+
+---
+
+## 6. Usage Modes
+
+### Standard Installation  (Hardware-Aware)
 ```bash
 sudo ./bootstrap-fedora.sh --install
 

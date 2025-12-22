@@ -2,19 +2,20 @@
 
 ![Fedora](https://img.shields.io/badge/Fedora-40+-blue?logo=fedora&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.12+-yellow?logo=python&logoColor=white)
+![NVIDIA](https://img.shields.io/badge/GPU-NVIDIA%20CUDA-green?logo=nvidia)
+![AMD](https://img.shields.io/badge/GPU-AMD%20ROCm-red?logo=amd)
 ![License](https://img.shields.io/badge/License-MIT-green)
-![Status](https://img.shields.io/badge/Status-Stable-green)
 
-A comprehensive, reproducible setup guide for configuring Fedora as a professional Python development environment.
+A comprehensive, reproducible setup guide for configuring Fedora as a professional development workstation.
 
 ## 📋 Features
 
-- ✅ **One-Command Setup**: Orchestrated via `bootstrap-fedora.sh`
-- ✅ **Backup & Restore**: Portable snapshots of your packages and configs
-- ✅ **Idempotent**: Safe to run multiple times
-- ✅ **Modern Python**: `uv`, `pipx`, Python 3.12+
-- ✅ **VSCodium**: Telemetry-free VS Code with Python, Ruff, and GitLens
-- ✅ **Observability**: Detailed, color-coded logging
+- ✅ **One-Command Setup**: Orchestrated via `bootstrap-fedora.sh`.
+- ✅ **Hardware Aware**: Automatically detects NVIDIA/AMD GPUs and installs drivers.
+- ✅ **Chassis Optimized**: Auto-configures TLP for laptops or Performance mode for desktops.
+- ✅ **Power User Shell**: Zsh + Oh My Zsh + Syntax Highlighting + Autosuggestions.
+- ✅ **Backup & Restore**: Portable snapshots of your packages and configs.
+- ✅ **Full Stack**: Python (uv/pipx), Node.js, Go, Rust, and VSCodium.
 
 ## 🚀 Quick Start
 
@@ -26,43 +27,34 @@ git clone [https://github.com/KnowOneActual/fedora-dev-setup.git](https://github
 cd fedora-dev-setup
 
 # 2. Run the full installer
+# (Detects hardware, installs drivers, sets up shell & tools)
 sudo ./bootstrap-fedora.sh --install
 
 ```
 
 ### Backup & Restore
 
-**To Create a Backup:**
-
-```bash
-./scripts/export-config.sh
-# Creates archive in ~/fedora-backups/
-
-```
-
-**To Restore:**
-
-```bash
-./scripts/restore-config.sh ~/fedora-backups/backup_NAME.tar.gz
-
-```
+* **Backup:** `./scripts/export-config.sh`
+* **Restore:** `./scripts/restore-config.sh <backup_file.tar.gz>`
 
 ## 📁 Directory Structure
 
 ```text
 fedora-dev-setup/
-├── bootstrap-fedora.sh      # Main entry point
+├── bootstrap-fedora.sh      # Main orchestrator
 ├── scripts/
 │   ├── 00-system-base.sh    # Core Tools
 │   ├── 10-python-dev.sh     # Python Stack
 │   ├── 20-vscodium.sh       # Editor Setup
+│   ├── 25-setup-zsh.sh      # Shell & Dotfiles
+│   ├── 30-gpu-setup.sh      # GPU Drivers (NVIDIA/AMD)
+│   ├── 31-hardware-opt.sh   # Power/Perf Tuning
+│   ├── 40-languages.sh      # Node, Go, Rust
 │   ├── export-config.sh     # Backup Tool
-│   ├── restore-config.sh    # Restore Tool
-│   └── lib/                 # Shared Libraries
-├── docs/
-│   ├── SETUP_SPEC.md        # Technical Specs
-│   └── ROADMAP.md           # Future Plans
-└── README.md                # Usage Guide
+│   └── restore-config.sh    # Restore Tool
+└── docs/                    # Specs & Roadmap
+
+
 
 ```
 

@@ -1,8 +1,28 @@
 # Fedora Dev Setup Bootstrap - Development Roadmap
 
-**Version:** 1.1.0  
+**Version:** 1.2.0  
 **Last Updated:** December 22, 2025  
 **Repository:** https://github.com/KnowOneActual/fedora-dev-setup
+
+---
+
+## 📅 Phase 3: Hardware & GPU (Completed)
+
+**Status:** ✅ Released v1.2.0  
+**Completed:** December 22, 2025
+
+### Delivered Features
+- ✅ **Hardware Detection** (`scripts/detect-hardware.sh`)
+  - Profiles GPU (NVIDIA/AMD/Intel), CPU cores, and Chassis type.
+  - Outputs a JSON hardware profile for other scripts to consume.
+- ✅ **GPU Acceleration** (`scripts/30-gpu-setup.sh`)
+  - **NVIDIA:** Automated installation of drivers, CUDA, and libs.
+  - **AMD:** Installation of ROCm and HIP compute stacks.
+- ✅ **Hardware Optimization** (`scripts/31-hardware-optimization.sh`)
+  - **Laptops:** Installs TLP for battery and thermal management.
+  - **Workstations:** Tunes CPU governor for performance.
+- ✅ **Extended Languages** (`scripts/40-languages.sh`)
+  - Node.js (with Yarn/PNPM), Go (with tools), and Rust (via Rustup).
 
 ---
 
@@ -11,52 +31,27 @@
 **Status:** ✅ Released v1.1.0  
 **Completed:** December 22, 2025
 
-### Delivered Features
-- ✅ **Backup Pipeline** (`scripts/export-config.sh`)
-  - Exports DNF package list, Pipx tools, and VSCodium extensions.
-  - Backs up Shell (`.bashrc`, `.zshrc`) and Git (`.gitconfig`) configs.
-  - Creates timestamped tarball archives.
-- ✅ **Restore Pipeline** (`scripts/restore-config.sh`)
-  - Intelligent package re-installation (skips existing).
-  - VSCodium extension restoration.
-  - Config file placement with automatic backups of existing files.
-- ✅ **Safety**
-  - Full `DRY_RUN` support for both export and restore.
+- **Backup Pipeline:** `scripts/export-config.sh`
+- **Restore Pipeline:** `scripts/restore-config.sh`
 
 ---
 
-## 🚀 Phase 3: Hardware & GPU (March 2026)
+## 🚀 Future Maintenance
 
-**Target Release:** v1.2.0  
-**Focus:** Performance and hardware-specific features.
+**Target:** v1.3.0+  
+**Focus:** Maintenance, security updates, and community requests.
 
-### Planned Features
-
-#### 1. Hardware Detection
-- `scripts/detect-hardware.sh` – Profile system
-  - GPU detection (Intel/AMD/NVIDIA).
-  - RAM and storage profiling.
-  - Output JSON-based hardware profile.
-
-#### 2. GPU Acceleration
-- **NVIDIA CUDA Setup**
-  - Install CUDA toolkit and cuDNN.
-  - Verify GPU availability.
-- **AMD ROCm Setup**
-  - Install ROCm toolkit and HIP.
-
-#### 3. Extended Language Support
-- **Node.js Stack**: Install Node (LTS), npm, and Yarn.
-- **Go Stack**: Install Go and gopls.
-- **Rust Stack**: Install Rustup and Cargo.
+- **Containerization:** Optional Docker/Podman setup script.
+- **Security Audit:** Automated Lynis scan integration.
+- **CI/CD:** GitHub Actions to validate install scripts on fresh images.
 
 ---
 
-## 📊 Project Statistics (v1.1.0)
+## 📊 Project Statistics (v1.2.0)
 
 | Metric | Value |
 |--------|-------|
-| **Architecture** | Modular (Orchestrator + Libs) |
-| **Scripts** | 7 Core Scripts (`00`, `10`, `20`, `25`, `export`, `restore`, `validate`) |
+| **Architecture** | Modular (Orchestrator + Libs + Hardware Awareness) |
+| **Scripts** | 12 Core Scripts |
 | **Libraries** | 2 (`logging`, `utils`) |
-| **Testing** | Dry-Run Verified on macOS |
+| **Capabilities** | GPU-Aware, Chassis-Aware, Power-User Shell |
