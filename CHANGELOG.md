@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [1.2.1] - 2025-12-22
+
+### Fixed
+- **Python Setup** (`scripts/10-python-dev.sh`): Fixed `uv` installation running as root; it now correctly installs to the user's `~/.local/bin` and updates the user's `PATH`.
+- **VSCodium** (`scripts/20-vscodium.sh`): Resolved `EACCES` permission errors by recursively enforcing user ownership on `~/.config/VSCodium` before installing extensions.
+- **Hardware Detection** (`scripts/detect-hardware.sh`):
+  - Added fallback logic for empty chassis detection (defaults to "desktop").
+  - Added support for VMware and Virtio GPUs to prevent "unknown" vendor warnings in virtualized environments.
+- **Validation** (`scripts/99-validate.sh`): Fixed a false positive where `uv` was reported missing because the validation script checked the root user's `PATH` instead of the user's home directory.
+- **Rust** (`scripts/40-languages.sh`): Ensured `~/.cargo/env` is persistently sourced in `.bashrc` and `.zshrc` for the non-root user.
+
+
 ---
 ## [1.2.0] - 2025-12-22
 
