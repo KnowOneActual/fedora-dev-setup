@@ -14,11 +14,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # FIX: Install ShellCheck from stable Ubuntu repos to avoid curl/network errors
+      - name: Install ShellCheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      # FIX: Run ShellCheck manually on all .sh files
       - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@master # Reverted to master
-        with:
-          scandir: "./scripts"
-          severity: "warning"
+        run: find . -type f -name "*.sh" -exec shellcheck {} +
 
   test-fedora:
     name: Dry Run on Fedora
