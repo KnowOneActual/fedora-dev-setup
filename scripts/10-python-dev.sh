@@ -15,28 +15,30 @@ check_internet
 
 # Determine the actual user (fallback to current user if not sudo)
 ACTUAL_USER="${SUDO_USER:-$(whoami)}"
+ACTUAL_HOME=$(eval echo "~$ACTUAL_USER")
 
 #######################################
 # 1. Install uv (Fast Python Installer)
 #######################################
 log_info "Installing uv (extremely fast Python package installer)..."
 
-if ! command_exists "uv"; then
+# Check if uv is present in the user's home (since it's not a system package)
+if ! sudo -u "$ACTUAL_USER" test -f "$ACTUAL_HOME/.local/bin/uv"; then
     if [[ "${DRY_RUN:-}" == "true" ]]; then
         log_info "[DRY RUN] Would download and install uv"
-        # Mock install for the rest of the script
-        export PATH="$HOME/.cargo/bin:$PATH"
     else
-        # Install to explicit path to ensure visibility
-        curl -LsSf https://astral.sh/uv/install.sh | sh
-        export PATH="$HOME/.cargo/bin:$PATH"
+        # Fix: Run as the actual user so it installs to ~/.local/bin, not /root/.local/bin
+        log_info "Downloading and installing uv as user '$ACTUAL_USER'..."
+        sudo -u "$ACTUAL_USER" sh -c "curl -LsSf https://astral.sh/uv/install.sh | sh"
         
-        ensure_in_path 'export PATH="$HOME/.cargo/bin:$PATH"' "$HOME/.bashrc" "$ACTUAL_USER"
+        # Fix: uv installs to ~/.local/bin by default. 
+        # We also add .cargo/bin here to prepare for Rust (Phase 3) or if uv changes behavior.
+        ensure_in_path 'export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"' "$ACTUAL_HOME/.bashrc" "$ACTUAL_USER"
         
-        if command_exists "uv"; then
+        if sudo -u "$ACTUAL_USER" test -f "$ACTUAL_HOME/.local/bin/uv"; then
             log_success "uv installed successfully"
         else
-            log_warn "uv installed but not found in PATH. You may need to restart shell."
+            log_warn "uv installed but binary not found in $ACTUAL_HOME/.local/bin"
         fi
     fi
 else
@@ -53,7 +55,7 @@ if ! command_exists "pipx"; then
     install_dnf_packages "pipx"
     
     if [[ "${DRY_RUN:-}" != "true" ]]; then
-        # Ensure path is set up
+        # Ensure path is set up for the user
         sudo -u "$ACTUAL_USER" pipx ensurepath
         log_success "pipx installed"
     fi
@@ -81,7 +83,7 @@ for tool in "${TOOLS[@]}"; do
     if [[ "${DRY_RUN:-}" == "true" ]]; then
         log_info "[DRY RUN] Would install: $tool"
     else
-        # Check if installed
+        # Check if installed for the user
         if ! sudo -u "$ACTUAL_USER" pipx list | grep -q "$tool"; then
             log_info "Installing $tool..."
             if sudo -u "$ACTUAL_USER" pipx install "$tool"; then
@@ -100,17 +102,25 @@ done
 #######################################
 log_info "Verifying installations..."
 
-validate_command "uv"
-validate_command "pipx"
+# System-wide checks
 validate_command "python3"
+validate_command "pipx"
 
-# Check a few pipx tools
 if [[ "${DRY_RUN:-}" == "true" ]]; then
     log_success "[DRY RUN] Global tools validation passed (mock)"
-elif sudo -u "$ACTUAL_USER" pipx list | grep -q "black"; then
-    log_success "Global tools accessible"
 else
-    log_warn "Global tools installed but might need a shell restart to be in PATH"
+    # User-specific checks
+    if sudo -u "$ACTUAL_USER" test -f "$ACTUAL_HOME/.local/bin/uv"; then
+        log_success "uv is accessible"
+    else
+        log_error "uv is missing from $ACTUAL_HOME/.local/bin"
+    fi
+
+    if sudo -u "$ACTUAL_USER" pipx list | grep -q "black"; then
+        log_success "Global tools accessible (via pipx)"
+    else
+        log_warn "Global tools installed but might need a shell restart to be in PATH"
+    fi
 fi
 
 log_success "Python development environment setup complete!"

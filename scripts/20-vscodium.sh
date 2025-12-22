@@ -43,7 +43,10 @@ fi
 #######################################
 log_info "Configuring VSCodium settings..."
 
-VSCODE_DIR="$ACTUAL_HOME/.config/VSCodium/User"
+# We need to make sure the parent VSCodium directory exists first
+# so we can set ownership on the whole tree.
+VSCODE_CONFIG_ROOT="$ACTUAL_HOME/.config/VSCodium"
+VSCODE_DIR="$VSCODE_CONFIG_ROOT/User"
 SETTINGS_FILE="$VSCODE_DIR/settings.json"
 
 ensure_directory "$VSCODE_DIR" "$ACTUAL_USER"
@@ -68,8 +71,11 @@ else
     "errorLens.enabled": true
 }
 EOF
-    chown "$ACTUAL_USER:$ACTUAL_USER" "$SETTINGS_FILE"
-    log_success "VSCodium settings configured"
+    # FIX: Recursively fix ownership of the entire VSCodium config tree.
+    # This prevents 'EACCES: permission denied' when the app tries to write logs/databases.
+    chown -R "$ACTUAL_USER:$ACTUAL_USER" "$VSCODE_CONFIG_ROOT"
+    
+    log_success "VSCodium settings configured and permissions fixed"
 fi
 
 #######################################

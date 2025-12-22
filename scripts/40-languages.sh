@@ -29,7 +29,7 @@ else
 fi
 
 # Global tools (Yarn, PNPM)
-# We use npm to install these globally
+# We use npm to install these globally. Since we are root, these go to system bin.
 NODE_TOOLS=("yarn" "pnpm" "typescript")
 
 for tool in "${NODE_TOOLS[@]}"; do
@@ -83,11 +83,16 @@ else
         log_info "[DRY RUN] Would download and run rustup-init"
     else
         # Rustup is the preferred way to install Rust
-        log_info "Installing Rust via rustup..."
+        log_info "Installing Rust via rustup as user '$ACTUAL_USER'..."
         sudo -u "$ACTUAL_USER" curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
             sudo -u "$ACTUAL_USER" sh -s -- -y
         
-        # Source env immediately for this script
+        # FIX: Ensure the user's shell loads Rust environment persistently
+        # Rustup usually adds this, but we force it to be sure, especially for zsh
+        ensure_in_path '. "$HOME/.cargo/env"' "$ACTUAL_HOME/.bashrc" "$ACTUAL_USER"
+        ensure_in_path '. "$HOME/.cargo/env"' "$ACTUAL_HOME/.zshrc" "$ACTUAL_USER"
+
+        # Source env immediately for this script to pass verification below
         if [[ -f "$ACTUAL_HOME/.cargo/env" ]]; then
             source "$ACTUAL_HOME/.cargo/env"
         fi
@@ -112,8 +117,14 @@ else
     if command_exists "go"; then
         log_success "Go:   $(go version | awk '{print $3}')"
     fi
-    if command_exists "rustc"; then
-        log_success "Rust: $(rustc --version | awk '{print $2}')"
+    # Use the full path or user context to verify rustc if it's not in root's PATH
+    if sudo -u "$ACTUAL_USER" command -v rustc >/dev/null; then
+         RUST_VER=$(sudo -u "$ACTUAL_USER" rustc --version | awk '{print $2}')
+         log_success "Rust: $RUST_VER"
+    elif command_exists "rustc"; then
+         log_success "Rust: $(rustc --version | awk '{print $2}')"
+    else
+         log_warn "Rust installed but not found in current PATH (requires restart)"
     fi
 fi
 

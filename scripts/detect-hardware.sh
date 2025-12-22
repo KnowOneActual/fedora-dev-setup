@@ -41,8 +41,18 @@ detect_gpu() {
     elif lspci | grep -i "intel" | grep -i "vga" > /dev/null; then
         vendor="intel"
         model=$(lspci | grep -i "intel" | grep -i "vga" | head -n 1 | cut -d ':' -f 3 | xargs)
+    # FIX: Added Virtio/VMware support so VMs don't show as "unknown"
+    elif lspci | grep -i "virtio" | grep -i "vga" > /dev/null; then
+        vendor="virtio"
+        model="Virtual GPU"
+    elif lspci | grep -i "vmware" | grep -i "vga" > /dev/null; then
+        vendor="vmware"
+        model="Virtual SVGA"
     fi
 
+    # Sanitize model string (remove newlines/quotes)
+    model=$(echo "$model" | tr -d '\n"')
+    
     echo "{\"vendor\": \"$vendor\", \"model\": \"$model\"}"
 }
 
@@ -50,20 +60,29 @@ detect_gpu() {
 # 2. Detect Chassis (Laptop/Desktop)
 #######################################
 detect_chassis() {
-    local chassis="desktop" # Default
+    local chassis="desktop" # Default safe value
     
     if [[ "${DRY_RUN:-}" == "true" ]]; then
         echo "laptop"
         return
     fi
 
+    # Try hostnamectl first
     if command_exists "hostnamectl"; then
-        chassis=$(hostnamectl --json 2>/dev/null | jq -r '.Chassis // "desktop"')
-        # Fallback if jq fails or field missing
-        [[ "$chassis" == "null" ]] && chassis="desktop"
-    elif [[ -d "/sys/class/power_supply" ]]; then
-        # Check for battery directory starting with BAT
-    if compgen -G "/sys/class/power_supply/BAT*" > /dev/null; then
+        local host_chassis
+        host_chassis=$(hostnamectl --json 2>/dev/null | jq -r '.Chassis // empty')
+        
+        # FIX: Explicitly check for empty string or null, don't just rely on jq default
+        if [[ -n "$host_chassis" && "$host_chassis" != "null" ]]; then
+            chassis="$host_chassis"
+        fi
+    fi
+
+    # FIX: Secondary Check - Presence of Battery
+    # Sometimes hostnamectl says 'desktop' or 'vm' even on laptops, 
+    # but if a battery is present, we treat it as a laptop for power optimizations.
+    if [[ -d "/sys/class/power_supply" ]]; then
+        if compgen -G "/sys/class/power_supply/BAT*" > /dev/null; then
             chassis="laptop"
         fi
     fi
