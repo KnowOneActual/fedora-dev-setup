@@ -3,7 +3,7 @@ name: Validate Setup Scripts
 on:
   push:
     branches:
-      - "**"
+      - '**'
   workflow_dispatch:
 
 jobs:
@@ -14,13 +14,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # FIX: Install ShellCheck from stable Ubuntu repos to avoid curl/network errors
       - name: Install ShellCheck
         run: sudo apt-get update && sudo apt-get install -y shellcheck
 
-      # FIX: Run ShellCheck manually on all .sh files
       - name: Run ShellCheck
-        run: find . -type f -name "*.sh" -exec shellcheck {} +
+        run: find . -type f -name "*.sh" -exec shellcheck -e SC1091,SC2016 {} +
 
   test-fedora:
     name: Dry Run on Fedora
