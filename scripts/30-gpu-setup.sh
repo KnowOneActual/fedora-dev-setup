@@ -51,7 +51,7 @@ setup_nvidia() {
         if [[ "${DRY_RUN:-}" == "true" ]]; then
             log_info "[DRY RUN] Would enable RPM Fusion Non-Free"
         else
-            dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-nonfree-release-$(get_fedora_version).noarch.rpm
+            dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-nonfree-release-"$(get_fedora_version)".noarch.rpm
         fi
     fi
 

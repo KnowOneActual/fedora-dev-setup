@@ -4,6 +4,24 @@
 **Last Updated:** December 22, 2025  
 **Repository:** https://github.com/KnowOneActual/fedora-dev-setup
 
+## 🛠️ Phase 4: Maintenance & Hardening (In Progress)
+
+**Target Release:** v1.3.0
+**Focus:** Automation, Security, and Containerization.
+
+### Delivered Features
+- ✅ **CI/CD Pipeline** (`.github/workflows/validate.yml`)
+  - Automated ShellCheck linting.
+  - Integration testing on Fedora 41 Docker containers.
+  - Verification of Backup/Restore scripts in CI.
+
+### Planned Features
+- [ ] **Containerization Support** (`scripts/45-containers.sh`)
+  - Podman (Native) & Docker CE setup.
+- [ ] **Security Auditing** (`scripts/50-security-audit.sh`)
+  - Lynis installation and automated system scanning.
+
+
 ---
 
 ## 📅 Phase 3: Hardware & GPU (Completed)

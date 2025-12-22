@@ -1,0 +1,50 @@
+name: Validate Setup Scripts
+
+on:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+jobs:
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: './scripts'
+          severity: 'warning'
+
+  test-fedora:
+    name: Dry Run on Fedora
+    runs-on: ubuntu-latest
+    container: fedora:41
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          dnf install -y git which sudo util-linux
+
+      - name: Create Test User
+        run: |
+          useradd testuser
+          echo "testuser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+      - name: Run Bootstrap (Dry Run)
+        run: |
+          # Fix permissions so testuser can write logs
+          chown -R testuser:testuser $GITHUB_WORKSPACE
+          
+          # Run the script as testuser
+          su - testuser -c "cd $GITHUB_WORKSPACE && ./bootstrap-fedora.sh --dry-run"
+
+      - name: Test Backup Script
+        run: |
+          su - testuser -c "cd $GITHUB_WORKSPACE && ./scripts/export-config.sh"

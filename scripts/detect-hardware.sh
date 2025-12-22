@@ -62,8 +62,8 @@ detect_chassis() {
         # Fallback if jq fails or field missing
         [[ "$chassis" == "null" ]] && chassis="desktop"
     elif [[ -d "/sys/class/power_supply" ]]; then
-        # If we see a battery, it's likely a laptop
-        if ls /sys/class/power_supply | grep -q "BAT"; then
+        # Check for battery directory starting with BAT
+    if compgen -G "/sys/class/power_supply/BAT*" > /dev/null; then
             chassis="laptop"
         fi
     fi
