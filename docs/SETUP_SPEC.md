@@ -106,37 +106,56 @@ Provides functional primitives:
 - Reports a summary of Pass/Fail metrics.
 
 ---
+## 4. Backup & Restore Architecture
 
-## 4. Usage Modes
+### Export (`scripts/export-config.sh`)
+Creates a portable snapshot of the development environment.
+- **Packages:** Queries RPM DB, Pipx, and VSCodium CLI to generate manifest text files.
+- **Configs:** Copies dotfiles from `$HOME`.
+- **Artifact:** Generates a `tar.gz` archive in `~/fedora-backups/`.
+
+### Restore (`scripts/restore-config.sh`)
+Rehydrates a system from a snapshot.
+- **Smart Install:** Reads manifest files and installs *only* missing packages/extensions.
+- **Safety:** Before restoring a config file (e.g., `.bashrc`), it creates a timestamped backup of the version on disk (e.g., `.bashrc.backup.20251222`).
+- **Idempotency:** Can be run multiple times safely.
+
+---
+
+## 5. Usage Modes
 
 ### Standard Installation
-
 ```bash
 sudo ./bootstrap-fedora.sh --install
 
 ```
 
-### Dry Run (Safe Test)
-
-Simulates installation logic without touching the system.
+### Backup
 
 ```bash
-./bootstrap-fedora.sh --dry-run
+./scripts/export-config.sh
 
 ```
 
-### Verification Only
-
-Runs only the validation checks (useful for checking drift).
+### Restore
 
 ```bash
-./bootstrap-fedora.sh --validate
+./scripts/restore-config.sh path/to/backup.tar.gz
+
+```
+
+### Dry Run (Safe Test)
+
+```bash
+./bootstrap-fedora.sh --dry-run
+# OR
+DRY_RUN=true ./scripts/export-config.sh
 
 ```
 
 ---
 
-## 5. Requirements
+## 6. Requirements
 
 - **OS:** Fedora Workstation 40 or newer.
 - **Privileges:** Sudo access required.
