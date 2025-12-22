@@ -7,30 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [1.1.0] - 2025-12-22
 
-### Planned for v1.1.0 (Backup & Restore)
-- **Backup Pipeline**
-  - `scripts/export-config.sh`: Export system state (packages, extensions, settings).
-  - `scripts/restore-config.sh`: Replay setup from backup.
-- **Documentation**
-  - `docs/ARCHITECTURE.md`: Internal design and data flow.
-  - `docs/CUSTOMIZE.md`: Guide for adding packages/tools.
-  - `docs/TROUBLESHOOTING.md`: Recovery steps for common failures.
-- **CI/CD**
-  - GitHub Actions workflow for ShellCheck validation.
+### Added
+- **Backup System** (`scripts/export-config.sh`):
+  - Automatically detects and exports installed DNF packages, Pipx tools, and VSCodium extensions.
+  - Backs up critical dotfiles (`.bashrc`, `.zshrc`, `.gitconfig`, `.ssh/config`).
+  - Saves VSCodium `settings.json` and `keybindings.json`.
+  - Compresses everything into a timestamped `.tar.gz` archive.
+- **Restore System** (`scripts/restore-config.sh`):
+  - Re-installs missing packages from the backup list.
+  - Restores VSCodium extensions and settings.
+  - Safely restores dotfiles (creating backups of existing files before overwriting).
+- **Shell Configuration** (`scripts/25-setup-zsh.sh`):
+  - Dedicated script for Zsh, Oh My Zsh, and plugin setup.
 
-### Planned for v1.2.0 (Hardware & GPU)
-- **Hardware Detection**: Profile GPU (NVIDIA/AMD), CPU, and RAM.
-- **GPU Acceleration**: CUDA and ROCm setup scripts.
-- **Optimization**: Laptop (power) vs. Workstation (performance) profiles.
-- **Language Stacks**: Node.js, Go, and Rust support.
+### Changed
+- **VSCodium Setup**: Updated extension list to include user productivity tools (ErrorLens, Rainbow CSV, etc.).
+- **Orchestrator**: Updated `bootstrap-fedora.sh` to support new modules.
 
 ---
 
 ## [1.0.0] - 2025-12-21
-
-### Added
 
 #### Core Infrastructure
 - **`bootstrap-fedora.sh`**: Main orchestrator script.
@@ -59,3 +57,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`SETUP_SPEC.md`**: Technical specification of the installation process.
 - **`ROADMAP.md`**: Project planning and phase breakdown.
 - **`README.md`**: Updated usage instructions and directory structure.
+
+
+
+## [Unreleased]
+
+
+### Planned for v1.2.0 (Hardware & GPU)
+- **Hardware Detection**: Profile GPU (NVIDIA/AMD), CPU, and RAM.
+- **GPU Acceleration**: CUDA and ROCm setup scripts.
+- **Optimization**: Laptop (power) vs. Workstation (performance) profiles.
+- **Language Stacks**: Node.js, Go, and Rust support.
