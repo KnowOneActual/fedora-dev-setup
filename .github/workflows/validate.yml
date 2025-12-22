@@ -1,0 +1,57 @@
+name: Validate Setup Scripts
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "**.sh"
+      - ".github/workflows/**"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "**.sh"
+      - ".github/workflows/**"
+
+jobs:
+  # JOB 1: Syntax Checking (Linting)
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: "./scripts"
+          severity: "warning" # Fails on error or warning
+
+  # JOB 2: Fedora Integration Test (Dry Run)
+  test-fedora:
+    name: Dry Run on Fedora
+    runs-on: ubuntu-latest
+    container: fedora:41 # Runs inside a real Fedora 41 image!
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        # We need git and basic tools that might be missing in a raw container
+        run: |
+          dnf install -y git which sudo util-linux
+
+      - name: Create Test User
+        # Our script expects a non-root user with sudo access
+        run: |
+          useradd testuser
+          echo "testuser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+      - name: Run Bootstrap (Dry Run)
+        # Switch to testuser and run the script
+        run: |
+          su - testuser -c "cd $GITHUB_WORKSPACE && ./bootstrap-fedora.sh --dry-run"
+
+      - name: Test Backup Script
+        run: |
+          su - testuser -c "cd $GITHUB_WORKSPACE && ./scripts/export-config.sh"
