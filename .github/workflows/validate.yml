@@ -2,15 +2,9 @@ name: Validate Setup Scripts
 
 on:
   push:
-    branches: ["main"]
-    paths:
-      - "**.sh"
-      - ".github/workflows/**"
-  pull_request:
-    branches: ["main", "**"]
-    paths:
-      - "**.sh"
-      - ".github/workflows/**"
+    branches:
+      - "**" # Run on EVERY branch
+  workflow_dispatch: # Adds a manual 'Run' button
 
 jobs:
   # JOB 1: Syntax Checking (Linting)
