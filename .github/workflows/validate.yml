@@ -3,7 +3,7 @@ name: Validate Setup Scripts
 on:
   push:
     branches:
-      - '**'
+      - "**"
   workflow_dispatch:
 
 jobs:
@@ -15,10 +15,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@master
+        # FIX 1: Use a stable version (v2) instead of master to prevent download errors
+        uses: ludeeus/action-shellcheck@v2
         with:
-          scandir: './scripts'
-          severity: 'warning'
+          scandir: "./scripts"
+          severity: "warning"
 
   test-fedora:
     name: Dry Run on Fedora
@@ -29,8 +30,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Dependencies
+        # FIX 2: Add 'jq' so detect-hardware.sh works during dry-run
         run: |
-          dnf install -y git which sudo util-linux
+          dnf install -y git which sudo util-linux jq
 
       - name: Create Test User
         run: |
@@ -41,7 +43,7 @@ jobs:
         run: |
           # Fix permissions so testuser can write logs
           chown -R testuser:testuser $GITHUB_WORKSPACE
-          
+
           # Run the script as testuser
           su - testuser -c "cd $GITHUB_WORKSPACE && ./bootstrap-fedora.sh --dry-run"
 
