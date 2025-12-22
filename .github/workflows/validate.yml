@@ -15,8 +15,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run ShellCheck
-        # FIX 1: Use a stable version (v2) instead of master to prevent download errors
-        uses: ludeeus/action-shellcheck@v2
+        uses: ludeeus/action-shellcheck@master # Reverted to master
         with:
           scandir: "./scripts"
           severity: "warning"
@@ -30,7 +29,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Dependencies
-        # FIX 2: Add 'jq' so detect-hardware.sh works during dry-run
         run: |
           dnf install -y git which sudo util-linux jq
 
@@ -41,10 +39,7 @@ jobs:
 
       - name: Run Bootstrap (Dry Run)
         run: |
-          # Fix permissions so testuser can write logs
           chown -R testuser:testuser $GITHUB_WORKSPACE
-
-          # Run the script as testuser
           su - testuser -c "cd $GITHUB_WORKSPACE && ./bootstrap-fedora.sh --dry-run"
 
       - name: Test Backup Script
