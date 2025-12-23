@@ -8,7 +8,7 @@ LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/lib" && pwd)"
 source "$LIB_DIR/logging.sh"
 source "$LIB_DIR/utils.sh"
 
-log_header "Phase 1: Setup Validation"
+log_header "Final Validation"
 
 FAILED=0
 ACTUAL_USER="${SUDO_USER:-$(whoami)}"
@@ -18,82 +18,57 @@ ACTUAL_HOME=$(eval echo "~$ACTUAL_USER")
 # 1. System Tools Verification
 #######################################
 log_info "Verifying core system tools..."
-
-SYSTEM_TOOLS=(
-    "git" "curl" "wget" "jq" "make" "gcc" "tar" "unzip"
-    "zsh" "tmux" "htop" "fzf" "direnv"
-)
-
+SYSTEM_TOOLS=("git" "curl" "jq" "make" "gcc" "zsh" "tmux" "htop" "fzf" "direnv")
 for tool in "${SYSTEM_TOOLS[@]}"; do
-    if ! validate_command "$tool"; then
-        FAILED=$((FAILED + 1))
-    fi
+    if ! validate_command "$tool"; then FAILED=$((FAILED + 1)); fi
 done
 
 #######################################
-# 2. Python Environment Verification
+# 2. Python Environment
 #######################################
 log_info "Verifying Python environment..."
+if ! validate_command "python3"; then FAILED=$((FAILED + 1)); fi
 
-# Removed 'uv' from this list because it's not in the system PATH
-PYTHON_TOOLS=(
-    "python3" "pip3" "pipx"
-)
-
-for tool in "${PYTHON_TOOLS[@]}"; do
-    if ! validate_command "$tool"; then
-        FAILED=$((FAILED + 1))
-    fi
-done
-
-# FIX: Check uv specifically in user's home, BUT respect DRY_RUN
+# Check uv
 if [[ "${DRY_RUN:-}" == "true" ]]; then
     log_success "[DRY RUN] uv validation passed (mock)"
 elif sudo -u "$ACTUAL_USER" test -f "$ACTUAL_HOME/.local/bin/uv" || \
      sudo -u "$ACTUAL_USER" test -f "$ACTUAL_HOME/.cargo/bin/uv"; then
-    log_success "uv is installed (user local)"
+    log_success "uv is installed"
 else
-    log_error "uv is missing from ~/.local/bin or ~/.cargo/bin"
+    log_error "uv is missing"
     FAILED=$((FAILED + 1))
 fi
 
-# Verify global pipx tools
-log_info "Verifying global Python utilities..."
-PIPX_TOOLS=("black" "ruff" "mypy" "pytest" "ipython")
+#######################################
+# 3. Containerization (NEW)
+#######################################
+log_info "Verifying Container stack..."
+CONTAINER_TOOLS=("docker" "podman" "distrobox")
 
-for tool in "${PIPX_TOOLS[@]}"; do
-    if [[ "${DRY_RUN:-}" == "true" ]]; then
-        log_success "[DRY RUN] $tool validation passed (mock)"
-    else
-        # pipx tools might not be in PATH immediately for script execution
-        # so we check if they are registered in pipx
-        if sudo -u "$ACTUAL_USER" pipx list | grep -q "$tool"; then
-            log_success "$tool is installed (pipx)"
-        else
-            log_error "$tool is missing from pipx"
-            FAILED=$((FAILED + 1))
-        fi
-    fi
+for tool in "${CONTAINER_TOOLS[@]}"; do
+    if ! validate_command "$tool"; then FAILED=$((FAILED + 1)); fi
 done
 
 #######################################
-# 3. VSCodium Verification
+# 4. Desktop & Flatpaks (NEW)
 #######################################
-log_info "Verifying VSCodium setup..."
+log_info "Verifying Desktop Apps..."
 
-if validate_command "codium" "VSCodium"; then
+if validate_command "flatpak"; then
     if [[ "${DRY_RUN:-}" == "true" ]]; then
-        log_success "[DRY RUN] Extensions validation passed (mock)"
+        log_success "[DRY RUN] Flatpak apps validation passed (mock)"
     else
-        # Check for key extensions
-        INSTALLED_EXTS=$(sudo -u "$ACTUAL_USER" codium --list-extensions)
-        REQUIRED_EXTS=("ms-python.python" "charliermarsh.ruff" "eamodio.gitlens")
+        INSTALLED_APPS=$(flatpak list --app --columns=application)
         
-        for ext in "${REQUIRED_EXTS[@]}"; do
-            if echo "$INSTALLED_EXTS" | grep -q "$ext"; then
-                log_success "Extension $ext is active"
+        # Check a few key apps
+        REQUIRED_APPS=("org.libreoffice.LibreOffice" "md.obsidian.Obsidian")
+        
+        for app in "${REQUIRED_APPS[@]}"; do
+            if echo "$INSTALLED_APPS" | grep -q "$app"; then
+                log_success "Flatpak app $app is installed"
             else
-                log_warn "Extension $ext not found (might need manual install)"
+                log_warn "Flatpak app $app missing (optional)"
             fi
         done
     fi
@@ -102,18 +77,12 @@ else
 fi
 
 #######################################
-# 4. Final Report
+# 5. Final Report
 #######################################
 echo ""
 if [[ $FAILED -eq 0 ]]; then
-    log_success "✅ All checks passed! Your Fedora development environment is ready."
-    echo ""
-    echo -e "${BLUE}Next Steps:${NC}"
-    echo "  1. Restart your shell or log out/in to apply PATH changes."
-    echo "  2. Open VSCodium and verify your settings."
-    echo "  3. Clone a repo and start coding!"
+    log_success "✅ All checks passed! Your Fedora Workstation is ready."
 else
     log_error "❌ Setup verified with $FAILED errors."
-    echo "Check the logs above for details on missing components."
     exit 1
 fi

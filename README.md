@@ -92,9 +92,6 @@ Re-hydrates a fresh system from a backup file. Safe to run—it backs up existin
 ```
 
 ---
-
-## 📂 Project Structure
-
 ```text
 fedora-dev-setup/
 ├── bootstrap-fedora.sh      # Main Entry Point
@@ -103,16 +100,16 @@ fedora-dev-setup/
 │   ├── 10-python-dev.sh     # Python (uv, pipx)
 │   ├── 20-vscodium.sh       # IDE Setup
 │   ├── 25-setup-zsh.sh      # Shell Configuration
-│   ├── 30-gpu-setup.sh      # Hardware Drivers (HAL)
+│   ├── 30-gpu-setup.sh      # Hardware Drivers
 │   ├── 31-hardware-opt.sh   # Power Management
 │   ├── 40-languages.sh      # Node, Go, Rust
+│   ├── 45-containers.sh     # Docker/Podman (NEW)
+│   ├── 50-desktop-apps.sh   # GUI Apps/Codecs (NEW)
 │   ├── 99-validate.sh       # Verification Suite
 │   ├── export-config.sh     # Backup Tool
 │   └── restore-config.sh    # Restore Tool
 └── docs/                    # Architecture Specs
-
 ```
-
 ---
 
 ## 🤝 Contributing

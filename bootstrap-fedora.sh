@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# bootstrap-fedora.sh - Fedora Development Environment Bootstrapper v1.2.0
+# bootstrap-fedora.sh - Fedora Development Environment Bootstrapper v1.3.0
 # Orchestrates the modular setup scripts.
 
 set -euo pipefail
@@ -23,7 +23,7 @@ Usage: $0 [OPTIONS]
 
 OPTIONS:
   --help        Show this help message
-  --install     Run the full installation (System -> Python -> Tools -> Hardware)
+  --install     Run the full installation (System -> Python -> Tools -> Hardware -> Apps)
   --validate    Run only the validation checks
   --dry-run     Simulate the installation without making changes
 
@@ -38,7 +38,6 @@ run_script() {
     local script_name="$1"
     local script_path="$SCRIPTS_DIR/$script_name"
     
-    # Check if script exists
     if [[ ! -f "$script_path" ]]; then
         log_warn "Script not found: $script_name (Skipping)"
         return
@@ -62,33 +61,17 @@ main() {
     local MODE=""
     export DRY_RUN="false"
 
-    # Parse arguments
     for arg in "$@"; do
         case "$arg" in
-            --help|-h)
-                usage
-                exit 0
-                ;;
-            --dry-run)
-                export DRY_RUN="true"
-                log_warn "Running in DRY RUN mode. No changes will be made."
-                ;;
-            --install)
-                MODE="install"
-                ;;
-            --validate)
-                MODE="validate"
-                ;;
-            *)
-                log_error "Unknown option: $arg"
-                exit 1
-                ;;
+            --help|-h) usage; exit 0 ;;
+            --dry-run) export DRY_RUN="true"; log_warn "Running in DRY RUN mode." ;;
+            --install) MODE="install" ;;
+            --validate) MODE="validate" ;;
+            *) log_error "Unknown option: $arg"; exit 1 ;;
         esac
     done
 
-    if [[ "$DRY_RUN" == "true" && -z "$MODE" ]]; then
-        MODE="install"
-    fi
+    if [[ "$DRY_RUN" == "true" && -z "$MODE" ]]; then MODE="install"; fi
 
     if [[ ! -d "$SCRIPTS_DIR" ]]; then
         log_error "Missing scripts directory at $SCRIPTS_DIR"
@@ -97,7 +80,7 @@ main() {
 
     case "$MODE" in
         install)
-            log_header "Starting Fedora Development Setup v1.2.0"
+            log_header "Starting Fedora Workstation Setup v1.3.0"
             
             # --- Phase 1: Core System ---
             run_script "00-system-base.sh"
@@ -108,15 +91,14 @@ main() {
             run_script "25-setup-zsh.sh"
             
             # --- Phase 3: Hardware & Extended Stack ---
-            # 1. Detect Hardware Profile
             run_script "detect-hardware.sh"
-            
-            # 2. Configure GPU & Optimization based on profile
             run_script "30-gpu-setup.sh"
             run_script "31-hardware-optimization.sh"
-            
-            # 3. Install Extended Languages
             run_script "40-languages.sh"
+            
+            # --- Phase 4 & 5: Containers & Apps (NEW) ---
+            run_script "45-containers.sh"
+            run_script "50-desktop-apps.sh"
             
             # --- Validation ---
             run_script "99-validate.sh"
@@ -129,10 +111,7 @@ main() {
             run_script "99-validate.sh"
             ;;
             
-        *)
-            usage
-            exit 1
-            ;;
+        *) usage; exit 1 ;;
     esac
 }
 
