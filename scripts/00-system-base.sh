@@ -79,15 +79,16 @@ PACKAGES=(
     # shell & terminal
     "zsh" "tmux" "fzf" "direnv" "bash-completion"
     
+    # NEW: Shell Power Tools (Fixes 'command not found')
+    "zoxide"    # Smarter cd
+    "thefuck"   # Auto-correction
+    
     # core utilities
     "git" "gh" "curl" "wget" "htop" "jq" "yq"
     "unzip" "zip" "tar" "gzip" "tree" "which"
     
-    # modern replacements (optional but recommended)
-    "bat"       # cat clone
-    "ripgrep"   # grep clone
-    "fd-find"   # find clone
-    "neovim"    # vim clone
+    # modern replacements
+    "bat" "ripgrep" "fd-find" "neovim"
     
     # python base
     "python3" "python3-devel" "python3-pip"
