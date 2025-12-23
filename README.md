@@ -131,7 +131,3 @@ Please check [CONTRIBUTING.md](https://www.google.com/search?q=CONTRIBUTING.md) 
 **License**: MIT
 
 **Author**: KnowOneActual
-
-
-
-I just finished the C2 Detection - Command & Control room on TryHackMe's Advent of Cyber. It's a great experience to learn how to analyze a large PCAP and uncover valuable information. I've heard about the Rita framework but haven't had a chance to try it yet. It sounds like a very powerful tool that I'll definitely keep in mind to include in my workflow. 
