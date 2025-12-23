@@ -12,8 +12,6 @@ log_header "Phase 5: Desktop Workstation Setup"
 
 check_root
 
-ACTUAL_USER="${SUDO_USER:-$(whoami)}"
-
 #######################################
 # 1. Multimedia Codecs
 #######################################
