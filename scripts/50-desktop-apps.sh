@@ -41,7 +41,7 @@ log_info "Installing multimedia codecs (ffmpeg, gstreamer)..."
 if [[ "${DRY_RUN:-false}" == "true" ]]; then
     log_info "[DRY RUN] Would install dnf packages: gstreamer1-libav"
 else
-    # Removed 'libdvdcss' to fix repo error
+    # Removed '' to fix repo error
     dnf install -y gstreamer1-libav
 fi
 
