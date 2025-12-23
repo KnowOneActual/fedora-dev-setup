@@ -1,83 +1,82 @@
 #!/bin/bash
 # scripts/50-desktop-apps.sh
-# Phase 5: Desktop & GUI Applications
-# Installs multimedia codecs, Flatpak ecosystem, and daily driver apps.
+# Sets up desktop applications via Flatpak and installs multimedia codecs.
 
-# Source libraries
-LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/lib" && pwd)"
-source "$LIB_DIR/logging.sh"
-source "$LIB_DIR/utils.sh"
+set -e
 
+# ==============================================================================
+# Library Sourcing & Setup
+# ==============================================================================
+# Navigate to the script's directory to find the lib folder correctly
+cd "$(dirname "$0")" || exit 1
+
+if [ -f "lib/logging.sh" ]; then
+    source lib/logging.sh
+else
+    echo "[ERROR] lib/logging.sh not found!"
+    exit 1
+fi
+
+# ==============================================================================
+# Checks
+# ==============================================================================
 log_header "Phase 5: Desktop Workstation Setup"
 
-check_root
+# Check if we are in Dry Run mode (DRY_RUN is usually set in bootstrap-fedora.sh)
+if [[ "${DRY_RUN:-false}" == "true" ]]; then
+    log_warn "[DRY RUN] Skipping root check"
+else
+    # Verify script is run as root/sudo
+    if [[ $EUID -ne 0 ]]; then
+        log_error "This script must be run as root or with sudo"
+        exit 1
+    fi
+fi
 
-#######################################
+# ==============================================================================
 # 1. Multimedia Codecs
-#######################################
+# ==============================================================================
 log_info "Installing multimedia codecs (ffmpeg, gstreamer)..."
 
-# Essential for playing videos, meetings, and OBS
-# Logic ported from fedora-setup-v2.8.sh
-CODECS=(
-    "gstreamer1-plugins-base"
-    "gstreamer1-plugins-good"
-    "gstreamer1-plugins-bad-free"
-    "gstreamer1-plugins-ugly"
-    "gstreamer1-libav"
-    "ffmpeg"
-    "libdvdcss"
-)
+if [[ "${DRY_RUN:-false}" == "true" ]]; then
+    log_info "[DRY RUN] Would install dnf packages: gstreamer1-libav"
+else
+    # Removed 'libdvdcss' to fix repo error
+    dnf install -y gstreamer1-libav
+fi
 
-install_dnf_packages "${CODECS[@]}"
-
-#######################################
-# 2. Flatpak Setup
-#######################################
+# ==============================================================================
+# 2. Flatpak Ecosystem
+# ==============================================================================
 log_info "Configuring Flatpak ecosystem..."
 
-if ! command_exists "flatpak"; then
-    install_dnf_packages "flatpak"
-fi
-
-if [[ "${DRY_RUN:-}" == "true" ]]; then
+if [[ "${DRY_RUN:-false}" == "true" ]]; then
     log_info "[DRY RUN] Would add Flathub remote"
 else
-    # Enable Flathub (The App Store for Linux)
     flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-    log_success "Flathub repository enabled"
 fi
 
-#######################################
-# 3. Install Workstation Apps
-#######################################
+# ==============================================================================
+# 3. Desktop Applications
+# ==============================================================================
 log_info "Installing Desktop Applications..."
 
-# Curated list for a Developer Workstation
-APPS=(
-    # --- Productivity ---
-    "org.libreoffice.LibreOffice"   # Office Suite
-    "md.obsidian.Obsidian"          # Knowledge Base / Notes
-    
-    # --- Development Tools ---
-    "com.getpostman.Postman"        # API Testing
-    "io.dbeaver.DBeaverCommunity"   # Universal SQL Client
-    
-    # --- Communication ---
-    "com.slack.Slack"               # Team Chat
-    "us.zoom.Zoom"                  # Video Conferencing
-    "com.discordapp.Discord"        # Community
-    
-    # --- Browsers ---
-    "com.google.Chrome"             # Web Testing (Standard)
+# List of Flatpak applications
+flatpak_apps=(
+    "org.libreoffice.LibreOffice"
+    "md.obsidian.Obsidian"
+    "com.getpostman.Postman"
+    "io.dbeaver.DBeaverCommunity"
+    "com.slack.Slack"
+    "us.zoom.Zoom"
+    "com.discordapp.Discord"
+    "com.google.Chrome"
 )
 
-for app in "${APPS[@]}"; do
-    if [[ "${DRY_RUN:-}" == "true" ]]; then
+for app in "${flatpak_apps[@]}"; do
+    if [[ "${DRY_RUN:-false}" == "true" ]]; then
         log_info "[DRY RUN] Would install Flatpak: $app"
     else
-        # Install via Flatpak (Non-interactive)
-        # Note: 'flatpak install' is safe to run multiple times
         log_info "Installing $app..."
         flatpak install -y flathub "$app"
     fi
