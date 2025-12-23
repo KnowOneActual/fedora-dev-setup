@@ -32,7 +32,7 @@ log_info "Extracting archive..."
 mkdir -p "$RESTORE_ROOT"
 tar -xzf "$BACKUP_ARCHIVE" -C "$RESTORE_ROOT"
 
-# Find the inner directory (it's inside a folder named backup_YYYYMMDD...)
+# Find the inner directory
 BACKUP_DIR=$(find "$RESTORE_ROOT" -maxdepth 1 -type d -name "backup_*" | head -n 1)
 
 if [[ -z "$BACKUP_DIR" ]]; then
@@ -74,6 +74,28 @@ if [[ -f "$BACKUP_DIR/packages/pipx_installed.txt" ]]; then
     done < "$BACKUP_DIR/packages/pipx_installed.txt"
 fi
 
+# Flatpak Apps (NEW)
+if [[ -f "$BACKUP_DIR/packages/flatpak_installed.txt" ]]; then
+    log_info "Restoring Flatpak applications..."
+    
+    # Ensure remote exists
+    if ! command_exists "flatpak"; then
+        install_dnf_packages "flatpak"
+    fi
+    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    
+    while read -r app; do
+        if [[ -n "$app" ]]; then
+            if [[ "${DRY_RUN:-}" == "true" ]]; then
+                log_info "[DRY RUN] Would install Flatpak: $app"
+            else
+                flatpak install -y flathub "$app" || log_warn "Failed to install $app"
+            fi
+        fi
+    done < "$BACKUP_DIR/packages/flatpak_installed.txt"
+    log_success "Flatpaks processed"
+fi
+
 #######################################
 # 3. Restore VSCodium Extensions
 #######################################
@@ -99,7 +121,6 @@ log_info "Restoring configuration files..."
 # Restore Shell Configs
 CONFIGS_SRC="$BACKUP_DIR/configs"
 if [[ -d "$CONFIGS_SRC" ]]; then
-    # TYPO FIXED HERE: ".bashrc" instead of "bjashrc"
     FILES=(".bashrc" ".zshrc" ".gitconfig")
     
     for file in "${FILES[@]}"; do

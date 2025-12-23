@@ -1,5 +1,47 @@
 # Fedora Dev Setup Bootstrap - Development Roadmap
 
+**Version:** 1.3.0  
+**Last Updated:** December 23, 2025  
+**Repository:** https://github.com/KnowOneActual/fedora-dev-setup
+
+## 🛠️ Phase 5: Workstation Polish (Completed)
+
+**Status:** ✅ Released v1.3.0  
+**Completed:** December 23, 2025
+
+### Delivered Features
+- ✅ **Containerization** (`scripts/45-containers.sh`)
+  - Podman, Distrobox, and Docker CE setup.
+- ✅ **Desktop Applications** (`scripts/50-desktop-apps.sh`)
+  - Flatpak ecosystem integration.
+  - Productivity suite: LibreOffice, Obsidian, Postman, DBeaver.
+  - Multimedia codecs (FFmpeg, GStreamer).
+- ✅ **Backup Upgrades**
+  - Full support for backing up and restoring Flatpak applications.
+
+---
+
+## 📅 Phase 4: Maintenance & Hardening (Completed)
+
+**Status:** ✅ Released v1.2.1  
+**Completed:** December 23, 2025
+
+### Delivered Features
+- ✅ **CI/CD Pipeline** (`.github/workflows/validate.yml`)
+  - Automated ShellCheck linting.
+  - Integration testing on Fedora 41 Docker containers.
+
+---
+
+## 🚀 Future Maintenance
+
+**Target:** v1.4.0+
+**Focus:** Security and Community Requests.
+
+- **Security Audit:** Automated Lynis scan integration (`scripts/60-security.sh`).
+- **Dotfile Management:** Replace simple copy with GNU Stow support.
+- **Nix Support:** Optional Nix package manager installation.
+
 **Version:** 1.2.0  
 **Last Updated:** December 22, 2025  
 **Repository:** https://github.com/KnowOneActual/fedora-dev-setup

@@ -36,6 +36,13 @@ if command_exists "pipx"; then
     log_success "Exported pipx tool list"
 fi
 
+# Flatpak Apps (NEW)
+if command_exists "flatpak"; then
+    # Export only the application ID (e.g., org.libreoffice.LibreOffice)
+    flatpak list --app --columns=application > "$BACKUP_DIR/packages/flatpak_installed.txt" 2>/dev/null
+    log_success "Exported Flatpak app list"
+fi
+
 # VSCodium Extensions
 if command_exists "codium"; then
     codium --list-extensions > "$BACKUP_DIR/packages/vscode_extensions.txt"

@@ -1,193 +1,63 @@
 # Fedora Dev Setup - Technical Specification
 
-**Version:** 1.0.0  
+**Version:** 1.3.0  
 **Status:** Active  
-**Last Updated:** December 21, 2025
+**Last Updated:** December 23, 2025
 
 ---
 
 ## 1. System Overview
 
-The **Fedora Dev Setup** is a modular, idempotent bootstrapping system designed to configure a fresh Fedora Workstation for professional Python development.
-
-### Core Philosophy
-
-1.  **Idempotency:** All scripts can be run multiple times without causing errors or duplication.
-2.  **Modularity:** Concerns (System, Python, Editor) are separated into distinct scripts.
-3.  **Observability:** All actions are logged to both console (colored) and disk (timestamped).
-4.  **Safety:** `DRY_RUN` mode allows testing logic without modifying the system.
+The **Fedora Dev Setup** is a modular, idempotent bootstrapping system designed to configure a fresh Fedora Workstation for professional development and daily use.
 
 ---
 
 ## 2. Architecture
 
-### Directory Structure
+### Installation Phases
 
-```text
-.
-├── bootstrap-fedora.sh      # Entry point orchestrator
-├── logs/                    # Runtime logs (git-ignored)
-├── scripts/
-│   ├── 00-system-base.sh    # DNF, Repos, Core Tools
-│   ├── 10-python-dev.sh     # Python, uv, pipx
-│   ├── 20-vscodium.sh       # Editor, Extensions, Settings
-│   ├── 99-validate.sh       # Post-install verification
-│   └── lib/
-│       ├── logging.sh       # Logging primitives
-│       └── utils.sh         # Helper functions
+#### Phase 1: System Base (`00-system-base.sh`)
+**Goal:** Prepare the OS.
+- DNF Optimization (parallel downloads).
+- Core Tools: GCC, Git, Tmux, Zsh.
 
-```
+#### Phase 2: Python Environment (`10-python-dev.sh`)
+**Goal:** Modern Python workflow.
+- `uv` and `pipx` installation.
+- Global tools: `ruff`, `black`, `mypy`.
 
-### Shared Libraries (`scripts/lib/`)
+#### Phase 3: Hardware Awareness
+**Goal:** Adapt to physical hardware.
+- **Detection (`detect-hardware.sh`):** Profiles GPU and Chassis.
+- **GPU (`30-gpu-setup.sh`):** NVIDIA/AMD drivers.
+- **Optimization (`31-hardware-optimization.sh`):** TLP for laptops, CPU governors for desktops.
 
-#### `logging.sh`
+#### Phase 4: Containerization (`45-containers.sh`)
+**Goal:** Isolated development environments.
+- **Podman & Distrobox:** Native Fedora tools for containerized workflows.
+- **Docker CE:** Industry standard runtime, user added to `docker` group.
 
-Provides standardized output formats:
+#### Phase 5: Desktop Workstation (`50-desktop-apps.sh`)
+**Goal:** Daily driver functionality.
+- **Multimedia:** Full codec support (H.264/HEVC) via RPM Fusion.
+- **Flatpak:** Flathub repository enabled.
+- **Apps:** LibreOffice, Obsidian, Slack, Postman, DBeaver.
 
-- **`log_info`** (Blue): General progress.
-- **`log_success`** (Green): Successful operations.
-- **`log_warn`** (Yellow): Non-fatal issues.
-- **`log_error`** (Red): Fatal errors (exits script).
-- **Log Rotation:** Creates a new log file `logs/install-YYYYMMDD-HHMMSS.log` for every run.
-
-#### `utils.sh`
-
-Provides functional primitives:
-
-- **`install_dnf_packages`**: Checks if a package exists before attempting install.
-- **`ensure_in_path`**: Appends to `.bashrc` only if the entry is missing.
-- **`backup_file`**: Creates timestamped backups before overwriting configs.
-- **`validate_command`**: Verifies binary existence for validation steps.
-- **`DRY_RUN` Support**: Mocks destructive operations when `DRY_RUN=true`.
+#### Validation (`99-validate.sh`)
+**Goal:** Verification.
+- Checks presence of binaries, Docker service status, and Flatpak apps.
 
 ---
 
-## 3. Installation Phases
-
-### Phase 1: System Base (`00-system-base.sh`)
-
-**Goal:** Prepare the OS for development.
-
-1. **Optimization:** Configures `/etc/dnf/dnf.conf` for parallel downloads.
-2. **Updates:** Runs full system upgrade (`dnf upgrade`).
-3. **Repositories:** Enables RPM Fusion Free.
-4. **Packages:** Installs GCC, Git, Make, Tmux, Zsh, Neovim, Ripgrep, FD, etc.
-
-### Phase 2: Python Environment (`10-python-dev.sh`)
-
-**Goal:** Setup a modern, fast Python workflow.
-
-1. **`uv`**: Installed to `~/.cargo/bin` for high-speed package resolution.
-2. **`pipx`**: Installed for isolated global tool management.
-3. **Global Tools:**
-
-- `ruff` (Linting)
-- `black` (Formatting)
-- `mypy` (Typing)
-- `pytest` (Testing)
-- `ipython` (REPL)
-
-### Phase 3: VSCodium (`20-vscodium.sh`)
-
-**Goal:** Configure a telemetry-free IDE.
-
-1. **Repo:** Adds `gitlab.com/paulcarroty/vscodium-deb-rpm-repo`.
-2. **Install:** Installs `codium` package.
-3. **Config:** Writes `settings.json` (Format on Save, Ruler at 88 chars).
-4. **Extensions:** Installs Python, Ruff, GitLens, Material Icons.
-
-### Phase 4: Validation (`99-validate.sh`)
-
-**Goal:** Ensure the system is ready for use.
-
-- Checks existence of all binaries (`git`, `uv`, `codium`).
-- Verifies pipx tool registration.
-- Verifies VSCodium extensions are active.
-- Reports a summary of Pass/Fail metrics.
-
----
-## 4. Backup & Restore Architecture
+## 3. Backup & Restore Architecture
 
 ### Export (`scripts/export-config.sh`)
-Creates a portable snapshot of the development environment.
-- **Packages:** Queries RPM DB, Pipx, and VSCodium CLI to generate manifest text files.
-- **Configs:** Copies dotfiles from `$HOME`.
-- **Artifact:** Generates a `tar.gz` archive in `~/fedora-backups/`.
+Creates a portable snapshot.
+- **Packages:** DNF, Pipx, VSCodium Extensions, **Flatpaks**.
+- **Configs:** Dotfiles (`.zshrc`, etc.) and VSCodium settings.
+- **Artifact:** `~/fedora-backups/fedora_dev_backup_YYYYMMDD.tar.gz`.
 
 ### Restore (`scripts/restore-config.sh`)
-Rehydrates a system from a snapshot.
-- **Smart Install:** Reads manifest files and installs *only* missing packages/extensions.
-- **Safety:** Before restoring a config file (e.g., `.bashrc`), it creates a timestamped backup of the version on disk (e.g., `.bashrc.backup.20251222`).
-- **Idempotency:** Can be run multiple times safely.
-
----
-
-## 5. Hardware Abstraction Layer (HAL)
-
-Version 1.2.0 introduces a hardware awareness layer to adapt the installation to the physical machine.
-
-### Detection Logic (`scripts/detect-hardware.sh`)
-- **GPU:** Scans `lspci` for vendor IDs (NVIDIA vs AMD vs Intel).
-- **Chassis:** Queries `hostnamectl` or checks `/sys/class/power_supply` for batteries.
-- **Output:** Writes a profile to `/tmp/fedora-hardware-profile.json`:
-  ```json
-  {
-    "chassis": "laptop",
-    "gpu": { "vendor": "nvidia", "model": "RTX 4060" },
-    "ram_gb": 32
-  }
-  
-  ### Adaptive Execution
-
-* **GPU Script (`30-gpu-setup.sh`):** Reads the JSON profile.
-* If `nvidia`: Enables RPM Fusion Non-Free, installs `akmod-nvidia`, `cuda`.
-* If `amd`: Installs `rocm-hip`, `opencl`.
-
-
-* **Optimization Script (`31-hardware-optimization.sh`):** Reads the JSON profile.
-* If `laptop`: Installs/Enables `tlp`.
-* If `desktop`: Sets CPU governor to `performance`.
-
-
-
----
-
-## 6. Usage Modes
-
-### Standard Installation  (Hardware-Aware)
-```bash
-sudo ./bootstrap-fedora.sh --install
-
-```
-
-### Backup
-
-```bash
-./scripts/export-config.sh
-
-```
-
-### Restore
-
-```bash
-./scripts/restore-config.sh path/to/backup.tar.gz
-
-```
-
-### Dry Run (Safe Test)
-
-```bash
-./bootstrap-fedora.sh --dry-run
-# OR
-DRY_RUN=true ./scripts/export-config.sh
-
-```
-
----
-
-## 6. Requirements
-
-- **OS:** Fedora Workstation 40 or newer.
-- **Privileges:** Sudo access required.
-- **Network:** Active internet connection required.
-- **Disk:** ~5GB free space recommended.
+Rehydrates a system.
+- Installs missing DNF/Flatpak packages from the manifest.
+- Safely restores config files (with backups).
