@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2025-12-23
+
+### Fixed
+- **Shell Setup** (`scripts/00-system-base.sh`): Added missing `zoxide` and `thefuck` packages to the base install list.
+- **Zsh Config** (`scripts/25-setup-zsh.sh`): 
+  - Fixed a critical bug where the script tried to source every file in `$HOME` (causing "Desktop: command not found" errors).
+  - Added safe existence checks before initializing `zoxide`, `thefuck`, and `direnv`.
+- **CI** (`.github/workflows/validate.yml`): Fixed flaky ShellCheck action by switching to manual install and excluding false positives (SC1091, SC2016).
+- **Documentation**: Updated `README.md` with improved layout and badges.
+
 
 ## [1.2.1] - 2025-12-22
 
