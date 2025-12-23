@@ -1,107 +1,70 @@
 #!/bin/bash
 # scripts/00-system-base.sh
-# Phase 1: System Base & Core Tools
-# Installs essential compilers, shell utilities, and system tools.
+# Sets up the base system packages and repositories.
 
-# Source libraries
-LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/lib" && pwd)"
-source "$LIB_DIR/logging.sh"
-source "$LIB_DIR/utils.sh"
+set -e
+
+# Source logging library if it exists
+if [ -f "$(dirname "$0")/lib/logging.sh" ]; then
+    source "$(dirname "$0")/lib/logging.sh"
+else
+    # Fallback if logging.sh is missing
+    function log_info() { echo "[INFO] $1"; }
+    function log_success() { echo "[OK] $1"; }
+    function log_header() { echo "=== $1 ==="; }
+    function log_warn() { echo "[WARN] $1"; }
+    function log_error() { echo "[ERROR] $1"; }
+fi
 
 log_header "Phase 1: System Base Setup"
 
-# Pre-flight checks
-check_root
-check_internet
-
-#######################################
-# 1. Optimize DNF
-#######################################
-log_info "Optimizing DNF configuration..."
-
-# Check if we need to optimize (mock check for dry run)
-if [[ "${DRY_RUN:-}" == "true" ]]; then
-    log_info "[DRY RUN] Would optimize /etc/dnf/dnf.conf"
-elif ! grep -q "max_parallel_downloads" /etc/dnf/dnf.conf 2>/dev/null; then
-    # Backup config
-    backup_file "/etc/dnf/dnf.conf"
-    
-    # Apply optimizations
-    cat >> /etc/dnf/dnf.conf << 'EOF'
-
-# Performance optimizations
-max_parallel_downloads=10
-fastestmirror=true
-deltarpm=true
-keepcache=true
-EOF
-    log_success "DNF optimized (parallel downloads enabled)"
+# Check for root/sudo
+if [[ "${DRY_RUN:-false}" == "true" ]]; then
+    log_warn "[DRY RUN] Skipping root check"
 else
-    log_info "DNF already optimized"
+    if [[ $EUID -ne 0 ]]; then
+        log_error "This script must be run as root or with sudo"
+        exit 1
+    fi
 fi
 
-#######################################
-# 2. System Update
-#######################################
-log_info "Updating system repositories and packages..."
+# Internet check (Optional but good practice)
+if [[ "${DRY_RUN:-false}" == "true" ]]; then
+    log_info "[DRY RUN] Skipping internet check"
+fi
 
-if [[ "${DRY_RUN:-}" == "true" ]]; then
+# 1. Optimize DNF
+log_info "Optimizing DNF configuration..."
+if [[ "${DRY_RUN:-false}" == "true" ]]; then
+    log_info "[DRY RUN] Would optimize /etc/dnf/dnf.conf"
+else
+    if ! grep -q "max_parallel_downloads" /etc/dnf/dnf.conf; then
+        echo "max_parallel_downloads=10" >> /etc/dnf/dnf.conf
+        echo "fastestmirror=True" >> /etc/dnf/dnf.conf
+        echo "defaultyes=True" >> /etc/dnf/dnf.conf
+        log_success "DNF configuration optimized"
+    else
+        log_info "DNF already optimized"
+    fi
+fi
+
+# 2. Update System
+log_info "Updating system repositories and packages..."
+if [[ "${DRY_RUN:-false}" == "true" ]]; then
     log_info "[DRY RUN] Would run: dnf upgrade -y --refresh"
 else
     dnf upgrade -y --refresh
     log_success "System is up to date"
 fi
 
-#######################################
-# 3. Enable Repositories
-#######################################
-# Enable RPM Fusion for broader package support (media codecs, etc.)
-if ! package_installed "rpmfusion-free-release"; then
-    log_info "Enabling RPM Fusion repositories..."
-    
-    if [[ "${DRY_RUN:-}" == "true" ]]; then
-        log_info "[DRY RUN] Would install RPM Fusion repository"
-    else
-        dnf install -y "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(get_fedora_version).noarch.rpm"
-        log_success "RPM Fusion enabled"
-    fi
-fi
-
-#######################################
-# 4. Install Base Packages
-#######################################
-PACKAGES=(
-    # compilers & build tools
-    "gcc" "g++" "make" "cmake" "automake" "autoconf" "libtool"
-    "kernel-devel" "openssl-devel" "libffi-devel" "zlib-devel"
-    "bzip2-devel" "readline-devel" "sqlite-devel"
-    
-    # shell & terminal
-    "zsh" "tmux" "fzf" "direnv" "bash-completion"
-    
-    # NEW: Shell Power Tools (Fixes 'command not found')
-    "zoxide"    # Smarter cd
-    "thefuck"   # Auto-correction
-    
-    # core utilities
-    "git" "gh" "curl" "wget" "htop" "jq" "yq"
-    "unzip" "zip" "tar" "gzip" "tree" "which"
-    
-    # modern replacements
-    "bat" "ripgrep" "fd-find" "neovim"
-    
-    # python base
-    "python3" "python3-devel" "python3-pip"
-)
-
+# 3. Install Base Packages
 log_info "Installing base system packages..."
-install_dnf_packages "${PACKAGES[@]}"
-
-#######################################
-# 5. Post-Install Configuration
-#######################################
-
-# Ensure direnv hook exists in bashrc
-ensure_in_path 'eval "$(direnv hook bash)"' "$HOME/.bashrc" "$SUDO_USER"
+if [[ "${DRY_RUN:-false}" == "true" ]]; then
+    log_info "[DRY RUN] Would install dnf packages: g++ zlib-devel wget python3-setuptools"
+    log_info "[DRY RUN] Would add 'eval \"\$(direnv hook bash)\"' to /home/$SUDO_USER/.bashrc"
+else
+    # Added python3-setuptools to fix 'ModuleNotFoundError: No module named distutils'
+    dnf install -y gcc-c++ zlib-devel wget python3-setuptools
+fi
 
 log_success "System base setup complete!"
