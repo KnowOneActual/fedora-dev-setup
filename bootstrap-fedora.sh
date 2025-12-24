@@ -28,6 +28,7 @@ OPTIONS:
   --dry-run     Simulate the installation without making changes
 
 EXAMPLES:
+  $0                        # Interactive Menu
   $0 --dry-run              # Preview changes safely
   sudo $0 --install         # Install everything
   $0 --validate             # Check if system is ready
@@ -53,11 +54,28 @@ run_script() {
 }
 
 main() {
+    # 1. Interactive Menu (If no arguments provided)
     if [[ $# -eq 0 ]]; then
-        usage
-        exit 1
+        log_header "Fedora Dev Setup v1.3.0"
+        echo "Welcome! Please select an operation:"
+        echo ""
+        echo "  1) [INSTALL]  Run full setup (System -> Apps -> Security)"
+        echo "  2) [DRY RUN]  Simulate installation (No changes)"
+        echo "  3) [VALIDATE] Verify existing setup"
+        echo "  4) [EXIT]     Quit"
+        echo ""
+        read -p "Enter choice [1-4]: " choice
+
+        case $choice in
+            1) set -- "--install" ;;
+            2) set -- "--dry-run" ;;
+            3) set -- "--validate" ;;
+            4) exit 0 ;;
+            *) log_error "Invalid selection"; exit 1 ;;
+        esac
     fi
 
+    # 2. Argument Parsing (Standard CLI)
     local MODE=""
     export DRY_RUN="false"
 
@@ -71,8 +89,10 @@ main() {
         esac
     done
 
+    # Default to install if dry-run is the only flag
     if [[ "$DRY_RUN" == "true" && -z "$MODE" ]]; then MODE="install"; fi
 
+    # 3. Execution
     if [[ ! -d "$SCRIPTS_DIR" ]]; then
         log_error "Missing scripts directory at $SCRIPTS_DIR"
         exit 1
@@ -96,12 +116,10 @@ main() {
             run_script "31-hardware-optimization.sh"
             run_script "40-languages.sh"
             
-            # --- Phase 4 & 5: Containers & Apps (NEW) ---
+            # --- Phase 4, 5, 6: Apps & Security ---
             run_script "45-containers.sh"
             run_script "50-desktop-apps.sh"
-
-            # --- Phase 6: Security (NEW) ---
-            run_script "60-security.sh"
+            run_script "60-security.sh"   # <--- NEW: Security Audit Phase
             
             # --- Validation ---
             run_script "99-validate.sh"
