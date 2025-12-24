@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-12-24
+
+### 🚀 New Features
+- **Security Auditing** (`scripts/60-security.sh`): 
+  - Integrated **Lynis** to perform automated security scanning.
+  - outputs a "Hardening Index" score and saves a detailed report to `/var/log/lynis-report.log`.
+- **Interactive Menu** (`bootstrap-fedora.sh`): 
+  - Running the bootstrapper without arguments now launches a user-friendly text menu.
+  - Options: Install, Dry Run, Validate, Exit.
+- **Visual Polish** (`scripts/50-desktop-apps.sh`): 
+  - Added automated installation of **JetBrains Mono Nerd Fonts** to fix broken icons in terminal/editor themes.
+
+### 🛠 Improvements
+- **Bootstrapper:** Refactored argument parsing to support both interactive mode and CI-friendly flags (`--install`, `--validate`) simultaneously.
+- **Documentation:** Updated `ROADMAP.md` to reflect the completion of Security and UX phases.
+
+### 🐛 Fixed
+- **Network Resilience:** The package installer now gracefully handles temporary mirror connection resets (Curl error 56) during font installation.
+
+
 ## [1.2.1] - 2025-12-23
 
 ### Fixed

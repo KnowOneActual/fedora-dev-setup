@@ -1,96 +1,53 @@
 # Fedora Dev Setup Bootstrap - Development Roadmap
 
 **Version:** 1.3.0  
-**Last Updated:** December 23, 2025  
+**Last Updated:** December 24, 2025  
 **Repository:** https://github.com/KnowOneActual/fedora-dev-setup
 
+## 🚀 Current Focus: Dotfile Mastery (v1.4.0)
 
-## 🚀 Future Maintenance
-
-- **Security Audit:** Automated Lynis scan integration (`scripts/60-security.sh`).
-- **Dotfile Management:** Replace simple copy with GNU Stow support.
-- **Nix Support:** Optional Nix package manager installation.
-
-### Planned Features
-- [ ] **Containerization Support** (`scripts/45-containers.sh`)
-  - Podman (Native) & Docker CE setup.
-- [ ] **Security Auditing** (`scripts/50-security-audit.sh`)
-  - Lynis installation and automated system scanning.
-
-
-
-
-## 🛠️ Phase 5: Workstation Polish (Completed)
-
-**Status:** ✅ Released v1.3.0  
-**Completed:** December 23, 2025
-
-### Delivered Features
-- ✅ **Containerization** (`scripts/45-containers.sh`)
-  - Podman, Distrobox, and Docker CE setup.
-- ✅ **Desktop Applications** (`scripts/50-desktop-apps.sh`)
-  - Flatpak ecosystem integration.
-  - Productivity suite: LibreOffice, Obsidian, Postman, DBeaver.
-  - Multimedia codecs (FFmpeg, GStreamer).
-- ✅ **Backup Upgrades**
-  - Full support for backing up and restoring Flatpak applications.
-
----
-
-## 📅 Phase 4: Maintenance & Hardening (Completed)
-
-**Status:** ✅ Released v1.2.1  
-**Completed:** December 23, 2025
-
-### Delivered Features
-- ✅ **CI/CD Pipeline** (`.github/workflows/validate.yml`)
-  - Automated ShellCheck linting.
-  - Integration testing on Fedora 41 Docker containers.
-
----
-
-## 🚀 Future Maintenance
-
-- **Security Audit:** Automated Lynis scan integration (`scripts/60-security.sh`).
-- **Dotfile Management:** Replace simple copy with GNU Stow support.
-- **Nix Support:** Optional Nix package manager installation.
+**Target Release:** v1.4.0  
+**Status:** 🚧 Planning  
+**Goal:** Decouple configuration from the repository using GNU Stow for cleaner updates and version control.
 
 ### Planned Features
-- [ ] **Containerization Support** (`scripts/45-containers.sh`)
-  - Podman (Native) & Docker CE setup.
-- [ ] **Security Auditing** (`scripts/50-security-audit.sh`)
-  - Lynis installation and automated system scanning.
-
-
----
-
-## 📅 Phase 3: Hardware & GPU (Completed)
-
-**Status:** ✅ Released v1.2.0  
-**Completed:** December 22, 2025
-
-### Delivered Features
-- ✅ **Hardware Detection** (`scripts/detect-hardware.sh`)
-  - Profiles GPU (NVIDIA/AMD/Intel), CPU cores, and Chassis type.
-  - Outputs a JSON hardware profile for other scripts to consume.
-- ✅ **GPU Acceleration** (`scripts/30-gpu-setup.sh`)
-  - **NVIDIA:** Automated installation of drivers, CUDA, and libs.
-  - **AMD:** Installation of ROCm and HIP compute stacks.
-- ✅ **Hardware Optimization** (`scripts/31-hardware-optimization.sh`)
-  - **Laptops:** Installs TLP for battery and thermal management.
-  - **Workstations:** Tunes CPU governor for performance.
-- ✅ **Extended Languages** (`scripts/40-languages.sh`)
-  - Node.js (with Yarn/PNPM), Go (with tools), and Rust (via Rustup).
+- [ ] **Dotfile Engine:** Replace `cp` based restore with `stow` symlinking.
+- [ ] **Repo Restructure:** Organize `dotfiles/` directory to mirror `$HOME` structure (e.g., `dotfiles/zsh/.zshrc`).
+- [ ] **Theme Integration:** Add optional Starship or Powerlevel10k theme configuration files.
+- [ ] **Nix Support:** Optional Nix package manager installation for hermetic tooling.
 
 ---
 
-## 📅 Phase 2: Backup & Restore (Completed)
+## ✅ Completed Milestones
 
-**Status:** ✅ Released v1.1.0  
-**Completed:** December 22, 2025
+### v1.3.0 - Security & UX Polish (Released: Dec 24, 2025)
+- **Security Audit:** Added `scripts/60-security.sh` using Lynis to scan and score system hardening.
+- **Interactive CLI:** `bootstrap-fedora.sh` now features an interactive menu if no arguments are passed.
+- **Visuals:** Automated installation of Nerd Fonts (JetBrains Mono) for correct icon rendering.
 
-- **Backup Pipeline:** `scripts/export-config.sh`
-- **Restore Pipeline:** `scripts/restore-config.sh`
+### v1.2.0 - Hardware Intelligence
+- **GPU Auto-Detect:** NVIDIA (CUDA) and AMD (ROCm) setup.
+- **Chassis Optimization:** Laptop (TLP) vs. Desktop (Performance) profiles.
+- **Language Stacks:** Node.js, Go, Rust (rustup).
+
+### v1.1.0 - Backup & Restore
+- **Snapshot System:** Export/Import packages, extensions, and config files to portable `.tar.gz` archives.
+
+### v1.0.0 - Core Foundation
+- **Base System:** DNF optimization, Zsh setup, VSCodium, and Python (uv/pipx) environment.
 
 ---
 
+## 🔮 Future Backlog (v1.5+)
+
+- **Ansible Migration:** Investigate migrating shell scripts to Ansible playbooks for enterprise-grade idempotency.
+- **Immutable Support:** Add specific support for Fedora Silverblue/Atomic (rpm-ostree).
+- **Dashboard:** Create a simple TUI (Text User Interface) dashboard for post-install system status.
+
+## 📊 Project Stats
+
+| Metric | Value |
+|--------|-------|
+| **Architecture** | Modular Bash (7 Phases) |
+| **Security** | Lynis Integration |
+| **Last Verified** | Fedora 43 (Rawhide/Testing) |
