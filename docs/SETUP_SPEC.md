@@ -2,17 +2,20 @@
 
 **Version:** 1.3.0  
 **Status:** Active  
-**Last Updated:** December 23, 2025
+**Last Updated:** December 24, 2025
 
 ---
 
 ## 1. System Overview
 
-The **Fedora Dev Setup** is a modular, idempotent bootstrapping system designed to configure a fresh Fedora Workstation for professional development and daily use.
+The **Fedora Dev Setup** is a modular, idempotent bootstrapping system designed to configure a fresh Fedora Workstation for professional development. It features a robust **Interactive CLI** entry point (`bootstrap-fedora.sh`) that orchestrates the entire process.
 
 ---
 
 ## 2. Architecture
+
+### Orchestrator: `bootstrap-fedora.sh`
+The main entry point. It provides an interactive text menu if run without arguments, or accepts CLI flags (`--install`, `--dry-run`, `--validate`) for automation.
 
 ### Installation Phases
 
@@ -21,31 +24,33 @@ The **Fedora Dev Setup** is a modular, idempotent bootstrapping system designed 
 - DNF Optimization (parallel downloads).
 - Core Tools: GCC, Git, Tmux, Zsh.
 
-#### Phase 2: Python Environment (`10-python-dev.sh`)
-**Goal:** Modern Python workflow.
-- `uv` and `pipx` installation.
-- Global tools: `ruff`, `black`, `mypy`.
+#### Phase 2: User Environment
+**Goal:** Modern development workflow.
+- **Python (`10-python-dev.sh`):** `uv` and `pipx` installation.
+- **IDE (`20-vscodium.sh`):** VSCodium with extensions and settings.
+- **Shell (`25-setup-zsh.sh`):** Oh My Zsh, plugins (syntax-highlighting, autosuggestions), and aliases.
 
 #### Phase 3: Hardware Awareness
 **Goal:** Adapt to physical hardware.
 - **Detection (`detect-hardware.sh`):** Profiles GPU and Chassis.
 - **GPU (`30-gpu-setup.sh`):** NVIDIA/AMD drivers.
 - **Optimization (`31-hardware-optimization.sh`):** TLP for laptops, CPU governors for desktops.
+- **Languages (`40-languages.sh`):** Node.js, Go, Rust.
 
-#### Phase 4: Containerization (`45-containers.sh`)
-**Goal:** Isolated development environments.
-- **Podman & Distrobox:** Native Fedora tools for containerized workflows.
-- **Docker CE:** Industry standard runtime, user added to `docker` group.
-
-#### Phase 5: Desktop Workstation (`50-desktop-apps.sh`)
+#### Phase 4 & 5: Applications
 **Goal:** Daily driver functionality.
-- **Multimedia:** Full codec support (H.264/HEVC) via RPM Fusion.
-- **Flatpak:** Flathub repository enabled.
-- **Apps:** LibreOffice, Obsidian, Slack, Postman, DBeaver.
+- **Containers (`45-containers.sh`):** Docker CE and Podman/Distrobox.
+- **Desktop (`50-desktop-apps.sh`):** Flatpaks (LibreOffice, Obsidian), Multimedia Codecs, and **Nerd Fonts**.
+
+#### Phase 6: Security Audit (`60-security.sh`)
+**Goal:** System Hardening.
+- **Tooling:** Installs Lynis.
+- **Audit:** Runs a non-interactive security scan.
+- **Reporting:** Generates a "Hardening Index" and saves a log to `/var/log/lynis-report.log`.
 
 #### Validation (`99-validate.sh`)
 **Goal:** Verification.
-- Checks presence of binaries, Docker service status, and Flatpak apps.
+- Checks presence of binaries, Docker service status, Flatpak apps, and security logs.
 
 ---
 
@@ -61,4 +66,3 @@ Creates a portable snapshot.
 Rehydrates a system.
 - Installs missing DNF/Flatpak packages from the manifest.
 - Safely restores config files (with backups).
-
