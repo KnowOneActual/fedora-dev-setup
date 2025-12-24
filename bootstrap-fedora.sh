@@ -64,7 +64,8 @@ main() {
         echo "  3) [VALIDATE] Verify existing setup"
         echo "  4) [EXIT]     Quit"
         echo ""
-        read -p "Enter choice [1-4]: " choice
+        # FIX: Added -r to prevent backslash mangling (SC2162)
+        read -r -p "Enter choice [1-4]: " choice
 
         case $choice in
             1) set -- "--install" ;;
@@ -119,7 +120,7 @@ main() {
             # --- Phase 4, 5, 6: Apps & Security ---
             run_script "45-containers.sh"
             run_script "50-desktop-apps.sh"
-            run_script "60-security.sh"   # <--- NEW: Security Audit Phase
+            run_script "60-security.sh"
             
             # --- Validation ---
             run_script "99-validate.sh"
