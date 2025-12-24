@@ -61,3 +61,4 @@ Creates a portable snapshot.
 Rehydrates a system.
 - Installs missing DNF/Flatpak packages from the manifest.
 - Safely restores config files (with backups).
+

@@ -39,9 +39,11 @@ if [[ "${DRY_RUN:-false}" == "true" ]]; then
     log_info "[DRY RUN] Would optimize /etc/dnf/dnf.conf"
 else
     if ! grep -q "max_parallel_downloads" /etc/dnf/dnf.conf; then
-        echo "max_parallel_downloads=10" >> /etc/dnf/dnf.conf
-        echo "fastestmirror=True" >> /etc/dnf/dnf.conf
-        echo "defaultyes=True" >> /etc/dnf/dnf.conf
+        {
+            echo "max_parallel_downloads=10"
+            echo "fastestmirror=True"
+            echo "defaultyes=True"
+        } >> /etc/dnf/dnf.conf
         log_success "DNF configuration optimized"
     else
         log_info "DNF already optimized"
