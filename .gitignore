@@ -12,6 +12,7 @@ $RECYCLE.BIN/
 # Log and temporary files
 *.log
 log.txt
+logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
