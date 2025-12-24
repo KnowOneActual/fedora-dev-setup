@@ -39,10 +39,10 @@ cd fedora-dev-setup
 
 ### 2. Run the Interactive Installer
 
-Simply run the script without arguments to see the menu:
+Run the script with `sudo` to ensure it has permission to install packages:
 
 ```bash
-./bootstrap-fedora.sh
+sudo ./bootstrap-fedora.sh
 
 ```
 
@@ -59,13 +59,12 @@ Welcome! Please select an operation:
 
 Select **Option 1** to begin. The script will:
 
-1. Ask for your `sudo` password once.
-2. Detect your hardware (Laptop vs. Desktop, Nvidia vs. AMD).
-3. Install and configure everything automatically.
+1. Detect your hardware (Laptop vs. Desktop, Nvidia vs. AMD).
+2. Install and configure everything automatically.
 
 ### 3. Verification
 
-Once finished, you can re-run the script and choose **Option 3 [VALIDATE]** to ensure all checks pass.
+Once finished, you can re-run the script (no sudo needed for validation) and choose **Option 3 [VALIDATE]** to ensure all checks pass.
 
 ---
 
@@ -85,7 +84,7 @@ Once finished, you can re-run the script and choose **Option 3 [VALIDATE]** to e
 
 ### 🛡️ Security & Optimization
 
-* **Security:** **Lynis** is installed and runs a system audit automatically. Check your score in the install logs!
+* **Security:** **Lynis** is installed and runs a system audit automatically.
 * **Hardware:**
 * **Laptops:** TLP is installed for better battery life.
 * **Desktops:** CPU governor is set to "Performance".
@@ -150,8 +149,22 @@ Moving to a new machine?
 
 ## Troubleshooting
 
+**"This script must be run as root or with sudo"**
+You selected **Option 1 (Install)** but launched the script as a regular user. The installation phase requires root privileges.
+**Solution:** Exit and run `sudo ./bootstrap-fedora.sh`.
+
 **"Curl error (56)" during font install?**
 This is usually a temporary network glitch. The script uses DNF which automatically retries mirrors. If validation passes, you can ignore this.
 
 **"Command not found" for `uv` or `cargo`?**
 Restart your terminal session. These tools update your `.zshrc` PATH, which needs to be reloaded.
+
+```
+
+### 2. Commit the Fix
+
+```bash
+git add docs/SETUP_GUIDE.md
+git commit -m "docs: clarify sudo requirement for installation mode"
+
+```
