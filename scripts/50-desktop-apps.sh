@@ -45,6 +45,11 @@ else
     dnf install -y gstreamer1-libav
 fi
 
+log_info "Installing Nerd Fonts (JetBrains Mono)..."
+if [[ "${DRY_RUN:-}" != "true" ]]; then
+    dnf install -y jetbrains-mono-fonts-all
+fi
+
 # ==============================================================================
 # 2. Flatpak Ecosystem
 # ==============================================================================

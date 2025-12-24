@@ -99,6 +99,9 @@ main() {
             # --- Phase 4 & 5: Containers & Apps (NEW) ---
             run_script "45-containers.sh"
             run_script "50-desktop-apps.sh"
+
+            # --- Phase 6: Security (NEW) ---
+            run_script "60-security.sh"
             
             # --- Validation ---
             run_script "99-validate.sh"

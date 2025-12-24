@@ -4,6 +4,22 @@
 **Last Updated:** December 23, 2025  
 **Repository:** https://github.com/KnowOneActual/fedora-dev-setup
 
+
+## 🚀 Future Maintenance
+
+- **Security Audit:** Automated Lynis scan integration (`scripts/60-security.sh`).
+- **Dotfile Management:** Replace simple copy with GNU Stow support.
+- **Nix Support:** Optional Nix package manager installation.
+
+### Planned Features
+- [ ] **Containerization Support** (`scripts/45-containers.sh`)
+  - Podman (Native) & Docker CE setup.
+- [ ] **Security Auditing** (`scripts/50-security-audit.sh`)
+  - Lynis installation and automated system scanning.
+
+
+
+
 ## 🛠️ Phase 5: Workstation Polish (Completed)
 
 **Status:** ✅ Released v1.3.0  
@@ -35,27 +51,9 @@
 
 ## 🚀 Future Maintenance
 
-**Target:** v1.4.0+
-**Focus:** Security and Community Requests.
-
 - **Security Audit:** Automated Lynis scan integration (`scripts/60-security.sh`).
 - **Dotfile Management:** Replace simple copy with GNU Stow support.
 - **Nix Support:** Optional Nix package manager installation.
-
-**Version:** 1.2.0  
-**Last Updated:** December 22, 2025  
-**Repository:** https://github.com/KnowOneActual/fedora-dev-setup
-
-## 🛠️ Phase 4: Maintenance & Hardening (In Progress)
-
-**Target Release:** v1.3.0
-**Focus:** Automation, Security, and Containerization.
-
-### Delivered Features
-- ✅ **CI/CD Pipeline** (`.github/workflows/validate.yml`)
-  - Automated ShellCheck linting.
-  - Integration testing on Fedora 41 Docker containers.
-  - Verification of Backup/Restore scripts in CI.
 
 ### Planned Features
 - [ ] **Containerization Support** (`scripts/45-containers.sh`)
@@ -96,22 +94,3 @@
 
 ---
 
-## 🚀 Future Maintenance
-
-**Target:** v1.3.0+  
-**Focus:** Maintenance, security updates, and community requests.
-
-- **Containerization:** Optional Docker/Podman setup script.
-- **Security Audit:** Automated Lynis scan integration.
-- **CI/CD:** GitHub Actions to validate install scripts on fresh images.
-
----
-
-## 📊 Project Statistics (v1.2.0)
-
-| Metric | Value |
-|--------|-------|
-| **Architecture** | Modular (Orchestrator + Libs + Hardware Awareness) |
-| **Scripts** | 12 Core Scripts |
-| **Libraries** | 2 (`logging`, `utils`) |
-| **Capabilities** | GPU-Aware, Chassis-Aware, Power-User Shell |
