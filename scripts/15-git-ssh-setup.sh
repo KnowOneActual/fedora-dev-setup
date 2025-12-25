@@ -81,7 +81,7 @@ if [[ "$DRY_RUN" != "true" ]]; then
                 current_url=$(cd "$repo_dir" && git remote get-url origin 2>/dev/null || echo "")
                 
                 if [[ $current_url == https://github.com/* ]]; then
-                    # FIX (SC2001): Use native Bash parameter expansion instead of 'sed'
+                    # Fix for SC2001 (ShellCheck)
                     new_url="${current_url/https:\/\/github.com\//git@github.com:}"
                     (cd "$repo_dir" && git remote set-url origin "$new_url")
                     log_success "Converted $repo_dir to SSH"
@@ -94,9 +94,14 @@ if [[ "$DRY_RUN" != "true" ]]; then
 fi
 
 #######################################
-# 5. Instructions for GitHub
+# 5. Instructions & Verification
 #######################################
 if [[ "$DRY_RUN" != "true" ]]; then
+    # Automatically add GitHub to known_hosts to prevent interactive prompt
+    log_info "Updating known_hosts with GitHub fingerprint..."
+    sudo -u "$ACTUAL_USER" touch "$ACTUAL_HOME/.ssh/known_hosts"
+    sudo -u "$ACTUAL_USER" ssh-keyscan -t ed25519 github.com >> "$ACTUAL_HOME/.ssh/known_hosts" 2>/dev/null
+
     echo ""
     log_info "FINAL STEP: Add this key to your GitHub account"
     echo "-----------------------------------------------------"
@@ -108,11 +113,11 @@ if [[ "$DRY_RUN" != "true" ]]; then
     echo ""
     read -r -p "Press Enter once you have added the key to test the connection..."
     
-    # FIX (SC2015): Use standard if/else instead of && || chain
-    if ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
+    # Standard if/else for SC2015 (ShellCheck)
+    if sudo -u "$ACTUAL_USER" ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
         log_success "GitHub connection verified!"
     else
-        log_warn "Could not verify connection. You may need to add the key to GitHub first."
+        log_warn "Could not verify connection. Ensure the key is added to your GitHub account profile."
     fi
 fi
 
