@@ -108,6 +108,7 @@ main() {
             
             # --- Phase 2: User Environment ---
             run_script "10-python-dev.sh"
+            run_script "15-git-ssh-setup.sh"
             run_script "20-vscodium.sh"
             run_script "25-setup-zsh.sh"
             

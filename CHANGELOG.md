@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2025-12-25
+
+### 🚀 New Features
+- **Git & SSH Automation** (`scripts/15-git-ssh-setup.sh`): 
+  - Added an interactive setup for Git global identity (`user.name` and `user.email`).
+  - Automated generation of Ed25519 SSH keys with correct user-home permissions.
+  - Implemented persistent `ssh-agent` configuration in both `.bashrc` and `.zshrc` to ensure keys stay loaded across sessions.
+  - Integrated a repository conversion utility that bulk-updates existing HTTPS remotes to SSH to resolve GitHub password authentication errors.
+  - Added a connection verification step to test the GitHub SSH link immediately after setup.
+
+### 🛠 Improvements
+- **Orchestrator** (`bootstrap-fedora.sh`): Integrated the new Git/SSH setup as Phase 2.1 in the main installation sequence.
+- **Documentation**: Updated technical specifications to reflect the new modular phase for user identity and security.
+
 ## [1.3.0] - 2025-12-24
 
 ### 🚀 New Features
