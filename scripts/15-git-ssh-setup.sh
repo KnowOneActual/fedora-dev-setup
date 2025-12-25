@@ -81,7 +81,8 @@ if [[ "$DRY_RUN" != "true" ]]; then
                 current_url=$(cd "$repo_dir" && git remote get-url origin 2>/dev/null || echo "")
                 
                 if [[ $current_url == https://github.com/* ]]; then
-                    new_url=$(echo "$current_url" | sed 's|https://github.com/|git@github.com:|')
+                    # FIX (SC2001): Use native Bash parameter expansion instead of 'sed'
+                    new_url="${current_url/https:\/\/github.com\//git@github.com:}"
                     (cd "$repo_dir" && git remote set-url origin "$new_url")
                     log_success "Converted $repo_dir to SSH"
                 fi
@@ -106,7 +107,13 @@ if [[ "$DRY_RUN" != "true" ]]; then
     echo "3. Paste it and save."
     echo ""
     read -r -p "Press Enter once you have added the key to test the connection..."
-    ssh -T git@github.com 2>&1 | grep -q "successfully authenticated" && log_success "GitHub connection verified!" || log_warn "Could not verify connection. You may need to add the key to GitHub first."
+    
+    # FIX (SC2015): Use standard if/else instead of && || chain
+    if ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
+        log_success "GitHub connection verified!"
+    else
+        log_warn "Could not verify connection. You may need to add the key to GitHub first."
+    fi
 fi
 
 log_success "Git and SSH setup complete!"
