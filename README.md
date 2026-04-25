@@ -47,7 +47,16 @@ cd fedora-dev-setup
 
 ```
 
-### 2. CLI Options (Non-Interactive)
+### 2. Customization (Optional)
+
+Before running the installer, you can easily customize what gets installed by editing the centralized configuration file:
+
+```bash
+# Edit the tools, extensions, and apps lists
+nano scripts/lib/variables.sh
+```
+
+### 3. CLI Options (Non-Interactive)
 
 For CI/CD or power users who prefer flags:
 

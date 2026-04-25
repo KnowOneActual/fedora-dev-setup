@@ -30,9 +30,8 @@ fi
 
 # Global tools (Yarn, PNPM)
 # We use npm to install these globally. Since we are root, these go to system bin.
-NODE_TOOLS=("yarn" "pnpm" "typescript")
 
-for tool in "${NODE_TOOLS[@]}"; do
+for tool in "${NODE_GLOBAL_TOOLS[@]}"; do
     if ! command_exists "$tool"; then
         if [[ "${DRY_RUN:-}" == "true" ]]; then
             log_info "[DRY RUN] Would npm install -g $tool"

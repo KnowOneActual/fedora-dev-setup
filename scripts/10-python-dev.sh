@@ -33,7 +33,7 @@ if ! sudo -u "$ACTUAL_USER" test -f "$ACTUAL_HOME/.local/bin/uv"; then
         
         # Fix: uv installs to ~/.local/bin by default. 
         # We also add .cargo/bin here to prepare for Rust (Phase 3) or if uv changes behavior.
-        ensure_in_path 'export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"' "$ACTUAL_HOME/.bashrc" "$ACTUAL_USER"
+        ensure_in_path "export PATH=\"\$HOME/.local/bin:\$HOME/.cargo/bin:\$PATH\"" "$ACTUAL_HOME/.bashrc" "$ACTUAL_USER"
         
         if sudo -u "$ACTUAL_USER" test -f "$ACTUAL_HOME/.local/bin/uv"; then
             log_success "uv installed successfully"
@@ -66,20 +66,9 @@ fi
 #######################################
 # 3. Install Global Python Tools
 #######################################
-TOOLS=(
-    "black"         # Formatter
-    "ruff"          # Fast Linter
-    "mypy"          # Type Checker
-    "pytest"        # Testing
-    "ipython"       # Better REPL
-    "httpie"        # Modern curl alternative
-    "poetry"        # Dependency management
-    "cookiecutter"  # Project scaffolding
-)
-
 log_info "Installing global Python tools via pipx..."
 
-for tool in "${TOOLS[@]}"; do
+for tool in "${PYTHON_GLOBAL_TOOLS[@]}"; do
     if [[ "${DRY_RUN:-}" == "true" ]]; then
         log_info "[DRY RUN] Would install: $tool"
     else

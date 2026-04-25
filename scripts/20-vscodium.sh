@@ -7,6 +7,7 @@
 LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/lib" && pwd)"
 source "$LIB_DIR/logging.sh"
 source "$LIB_DIR/utils.sh"
+source "$LIB_DIR/variables.sh"
 
 log_header "Phase 3: VSCodium Setup"
 

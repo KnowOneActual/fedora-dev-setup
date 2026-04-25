@@ -37,7 +37,15 @@ cd fedora-dev-setup
 
 ```
 
-### 2. Run the Interactive Installer
+### 2. Customize the Stack (Optional)
+
+You can easily modify which tools, extensions, and Flatpak apps get installed by editing the central configuration file before running the bootstrapper:
+
+```bash
+nano scripts/lib/variables.sh
+```
+
+### 3. Run the Interactive Installer
 
 Run the script with `sudo` to ensure it has permission to install packages:
 

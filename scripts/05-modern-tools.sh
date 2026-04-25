@@ -6,6 +6,7 @@
 LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/lib" && pwd)"
 source "$LIB_DIR/logging.sh"
 source "$LIB_DIR/utils.sh"
+source "$LIB_DIR/variables.sh"
 
 log_header "Phase 1.5: Modern CLI Tools"
 
@@ -18,25 +19,8 @@ USER_HOME=$(getent passwd "$ACTUAL_USER" | cut -d: -f6)
 #######################################
 # 1. Install Toolchain
 #######################################
-# eza: Better 'ls' | bat: Better 'cat' | fd-find: Better 'find'
-# du-dust: Better 'du' | git-delta: Better 'git diff'
-# ripgrep: Better 'grep' | zoxide: Better 'cd' | bottom: Better 'top'
-TOOLS=(
-    "eza" 
-    "bat" 
-    "fd-find" 
-    "du-dust" 
-    "git-delta" 
-    "ripgrep" 
-    "fzf" 
-    "zoxide" 
-    "htop" 
-    "direnv" 
-    "tldr"
-)
-
 log_info "Installing modern CLI utilities..."
-install_dnf_packages "${TOOLS[@]}"
+install_dnf_packages "${MODERN_CLI_TOOLS[@]}"
 
 #######################################
 # 2. Configure Git Delta

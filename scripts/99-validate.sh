@@ -18,8 +18,7 @@ ACTUAL_HOME=$(eval echo "~$ACTUAL_USER")
 # 1. System Tools Verification
 #######################################
 log_info "Verifying core system tools..."
-SYSTEM_TOOLS=("git" "curl" "jq" "make" "gcc" "zsh" "tmux" "htop" "fzf" "direnv")
-for tool in "${SYSTEM_TOOLS[@]}"; do
+for tool in "${VALIDATE_SYSTEM_TOOLS[@]}"; do
     if ! validate_command "$tool"; then FAILED=$((FAILED + 1)); fi
 done
 

@@ -66,19 +66,7 @@ fi
 # ==============================================================================
 log_info "Installing Desktop Applications..."
 
-# List of Flatpak applications
-flatpak_apps=(
-    "org.libreoffice.LibreOffice"
-    "md.obsidian.Obsidian"
-    "com.getpostman.Postman"
-    "io.dbeaver.DBeaverCommunity"
-    "com.slack.Slack"
-    "us.zoom.Zoom"
-    "com.discordapp.Discord"
-    "com.google.Chrome"
-)
-
-for app in "${flatpak_apps[@]}"; do
+for app in "${FLATPAK_APPS[@]}"; do
     if [[ "${DRY_RUN:-false}" == "true" ]]; then
         log_info "[DRY RUN] Would install Flatpak: $app"
     else

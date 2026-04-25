@@ -17,6 +17,11 @@ The **Fedora Dev Setup** is a modular, idempotent bootstrapping system designed 
 ### Orchestrator: `bootstrap-fedora.sh`
 The main entry point. It provides an interactive text menu if run without arguments, or accepts CLI flags (`--install`, `--dry-run`, `--validate`) for automation.
 
+### Shared Libraries (`scripts/lib/`)
+- **`variables.sh`**: Centralized configuration file holding all arrays for tools, apps, and extensions.
+- **`logging.sh`**: Standardized, timestamped, colored logging. Uses `tee` to capture all stdout/stderr to a log file.
+- **`utils.sh`**: Idempotent functions for DNF, file management, and system checks.
+
 ### Installation Phases
 
 #### Phase 1: System Base (`00-system-base.sh`)

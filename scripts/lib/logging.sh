@@ -11,6 +11,9 @@ LOG_DIR="logs"
 mkdir -p "$LOG_DIR"
 CURRENT_LOG_FILE="$LOG_DIR/install-$(date +%Y%m%d-%H%M%S).log"
 
+# Capture all subsequent output (stdout and stderr) to the log file via tee
+exec > >(tee -i -a "$CURRENT_LOG_FILE") 2>&1
+
 # Colors
 readonly RED='\033[0;31m'
 readonly GREEN='\033[0;32m'

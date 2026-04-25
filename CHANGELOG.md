@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Centralized Configuration** (`scripts/lib/variables.sh`): Extracted all hardcoded arrays (e.g., CLI tools, Python tools, VSCodium extensions, Node packages, Flatpaks, and validation targets) into a single configuration file for easy user customization.
+- **Enhanced Logging** (`scripts/lib/logging.sh`): Integrated `tee` to capture all command output (stdout and stderr) into timestamped log files, significantly improving debuggability.
+
+### Fixed
+- **ShellCheck Issues**: Fixed a variable expansion bug in `scripts/10-python-dev.sh` and resolved several other linting warnings across the scripts.
+
 ## [1.5.0] - 2026-04-25
 
 ### Added
