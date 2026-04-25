@@ -100,7 +100,7 @@ if [[ "$DRY_RUN" != "true" ]]; then
     # Automatically add GitHub to known_hosts to prevent interactive prompt
     log_info "Updating known_hosts with GitHub fingerprint..."
     sudo -u "$ACTUAL_USER" touch "$ACTUAL_HOME/.ssh/known_hosts"
-    sudo -u "$ACTUAL_USER" ssh-keyscan -t ed25519 github.com >> "$ACTUAL_HOME/.ssh/known_hosts" 2>/dev/null
+    sudo -u "$ACTUAL_USER" ssh-keyscan -t ed25519 github.com 2>/dev/null | sudo -u "$ACTUAL_USER" tee -a "$ACTUAL_HOME/.ssh/known_hosts" >/dev/null
 
     echo ""
     log_info "FINAL STEP: Add this key to your GitHub account"

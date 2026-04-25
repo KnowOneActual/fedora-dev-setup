@@ -56,8 +56,8 @@ if [[ "${DRY_RUN:-false}" == "true" ]]; then
     log_info "[DRY RUN] Would install RPM Fusion and run: dnf upgrade -y --refresh"
 else
     # Enable RPM Fusion (Free and Nonfree)
-    dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
-                https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+    dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-"$(rpm -E %fedora)".noarch.rpm \
+                https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-"$(rpm -E %fedora)".noarch.rpm
     
     dnf upgrade -y --refresh
     log_success "System is up to date with RPM Fusion enabled"
