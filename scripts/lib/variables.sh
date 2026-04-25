@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2034
 # scripts/lib/variables.sh
 # Central configuration file for Fedora Dev Setup
 
