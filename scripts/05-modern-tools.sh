@@ -30,7 +30,8 @@ TOOLS=(
     "ripgrep" 
     "fzf" 
     "zoxide" 
-    "bottom" 
+    "htop" 
+    "direnv" 
     "tldr"
 )
 
@@ -65,7 +66,7 @@ alias ls='eza --group-directories-first --icons'
 alias cat='bat --style=plain --paging=never'
 alias grep='rg'
 alias du='dust'
-alias top='btm'
+alias top='htop'
 alias fd='fdfind'
 alias cd='z'
 eval "\$(zoxide init bash)"

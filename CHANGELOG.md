@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-04-25
+
+### Added
+- **RPM Fusion Repositories** (`scripts/00-system-base.sh`): Now automatically enables both Free and Nonfree RPM Fusion repositories during the base setup phase. This ensures proprietary drivers and codecs are available for downstream scripts.
+- **Core Dependencies**: Explicitly added `zsh`, `tmux`, `jq`, `git`, `curl`, and `make` to the base system installation to ensure `bootstrap-fedora.sh` is fully self-sufficient and validation-ready.
+- **Default Shell** (`scripts/25-setup-zsh.sh`): Added automation to change the user's default shell to Zsh using `chsh` upon successful configuration.
+
+### Changed
+- **Modern CLI Tools** (`scripts/05-modern-tools.sh`):
+  - Replaced the unavailable `bottom` package with `htop` to ensure DNF transactions complete successfully.
+  - Added `direnv` to the modern toolchain.
+  - Updated system aliases to map `top` to `htop`.
+- **Fedora Support**: Updated documentation and configuration to reflect testing and support for Fedora 43.
+
+### Fixed
+- **Installation Resilience**: Fixed a critical issue where an unavailable package in a DNF transaction (like `bottom`) would cause all other modern tools (like `zoxide`, `fzf`) to be skipped.
+- **GPU Driver Availability**: Resolved "Package not found" errors for `intel-media-driver` by ensuring RPM Fusion is enabled before Phase 3 execution.
+- **Zsh Setup**: Fixed failures in Oh My Zsh installation caused by `zsh` not being present on the base system.
+
 ## [1.4.1] - 2025-12-25
 
 ### Added

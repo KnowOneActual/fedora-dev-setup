@@ -148,4 +148,20 @@ EOF
 # Ensure ownership is correct
 chown "$ACTUAL_USER:$ACTUAL_USER" "$ZSHRC"
 
-log_success "Shell configuration updated (Clean .zshrc with modern aliases generated)"
+#######################################
+# 4. Set Zsh as Default Shell
+#######################################
+log_info "Setting Zsh as the default shell for $ACTUAL_USER..."
+if [[ "${DRY_RUN:-}" == "true" ]]; then
+    log_info "[DRY RUN] Would run: chsh -s \$(which zsh) $ACTUAL_USER"
+else
+    ZSH_PATH=$(which zsh)
+    if [[ -n "$ZSH_PATH" ]]; then
+        chsh -s "$ZSH_PATH" "$ACTUAL_USER"
+        log_success "Default shell changed to Zsh for $ACTUAL_USER"
+    else
+        log_error "Zsh path not found. Could not change default shell."
+    fi
+fi
+
+log_success "Shell configuration complete!"

@@ -50,23 +50,26 @@ else
     fi
 fi
 
-# 2. Update System
+# 2. Update System & Repositories
 log_info "Updating system repositories and packages..."
 if [[ "${DRY_RUN:-false}" == "true" ]]; then
-    log_info "[DRY RUN] Would run: dnf upgrade -y --refresh"
+    log_info "[DRY RUN] Would install RPM Fusion and run: dnf upgrade -y --refresh"
 else
+    # Enable RPM Fusion (Free and Nonfree)
+    dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
+                https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+    
     dnf upgrade -y --refresh
-    log_success "System is up to date"
+    log_success "System is up to date with RPM Fusion enabled"
 fi
 
 # 3. Install Base Packages
 log_info "Installing base system packages..."
 if [[ "${DRY_RUN:-false}" == "true" ]]; then
-    log_info "[DRY RUN] Would install dnf packages: g++ zlib-devel wget python3-setuptools"
-    log_info "[DRY RUN] Would add 'eval \"\$(direnv hook bash)\"' to /home/$SUDO_USER/.bashrc"
+    log_info "[DRY RUN] Would install dnf packages: gcc-c++ zlib-devel wget python3-setuptools git curl jq make tmux zsh"
 else
-    # Added python3-setuptools to fix 'ModuleNotFoundError: No module named distutils'
-    dnf install -y gcc-c++ zlib-devel wget python3-setuptools
+    # Added core tools for validation and zsh setup
+    dnf install -y gcc-c++ zlib-devel wget python3-setuptools git curl jq make tmux zsh
 fi
 
 log_success "System base setup complete!"
