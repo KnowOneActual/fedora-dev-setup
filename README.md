@@ -1,7 +1,7 @@
 # 🚀 Fedora Development Workstation Setup
 
 ![Version](https://img.shields.io/badge/version-1.6.0-blue?style=for-the-badge)
-![Fedora](https://img.shields.io/badge/Fedora-43-blue?logo=fedora&logoColor=white&style=for-the-badge)
+![Fedora](https://img.shields.io/badge/Fedora-44-blue?logo=fedora&logoColor=white&style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge)
 
