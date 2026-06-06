@@ -1,8 +1,8 @@
 # Fedora Dev Setup - Technical Specification
 
-**Version:** 1.3.0  
+**Version:** 1.6.0  
 **Status:** Active  
-**Last Updated:** December 24, 2025
+**Last Updated:** June 6, 2026
 
 ---
 
@@ -61,13 +61,14 @@ The main entry point. It provides an interactive text menu if run without argume
 
 ## 3. Backup & Restore Architecture
 
-### Export (`scripts/export-config.sh`)
+### Export (`scripts/export-config.sh` or `bootstrap-fedora.sh --backup`)
 Creates a portable snapshot.
-- **Packages:** DNF, Pipx, VSCodium Extensions, **Flatpaks**.
-- **Configs:** Dotfiles (`.zshrc`, etc.) and VSCodium settings.
-- **Artifact:** `~/fedora-backups/fedora_dev_backup_YYYYMMDD.tar.gz`.
+- **Packages:** DNF, Pipx, VSCodium Extensions, Flatpaks.
+- **Configs:** Shell configuration files (`.bashrc`, `.zshrc`, `.zprofile`, `.profile`), SSH connections (`.ssh/config`), Git preferences (`.gitconfig`), Tmux properties (`.tmux.conf`), custom zsh directories (`~/.config/zsh-custom`), VSCodium preferences, and GNOME window manager/shortcut configurations (via `dconf dump`).
+- **Artifact:** `~/fedora-backups/fedora_dev_backup_YYYYMMDD_HHMMSS.tar.gz`.
 
-### Restore (`scripts/restore-config.sh`)
+### Restore (`scripts/restore-config.sh` or `bootstrap-fedora.sh --restore`)
 Rehydrates a system.
-- Installs missing DNF/Flatpak packages from the manifest.
-- Safely restores config files (with backups).
+- **Auto-Discovery:** Automatically scans `~/fedora-backups/` and prompts the user with an interactive selection if no specific backup archive is passed.
+- **Resilient Package Recovery:** Installs DNF packages using a best-effort transaction; falls back to package-by-package installation on error to ensure a single repository failure does not block restoration.
+- **User Permission Alignment:** Automatically resolves user home directory context and applies proper user-level ownership (`chown`) on restored files and directories.

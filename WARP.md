@@ -35,6 +35,12 @@ sudo ./bootstrap-fedora.sh --install
 
 # Validate existing setup
 ./bootstrap-fedora.sh --validate
+
+# Backup system configs
+./bootstrap-fedora.sh --backup
+
+# Restore system configs interactively (scans local backups)
+./bootstrap-fedora.sh --restore
 ```
 
 ### Testing Changes
@@ -135,7 +141,7 @@ Use the template in `.github/PULL_REQUEST_TEMPLATE.md`:
 ├── bootstrap-fedora.sh           # Main entry point (interactive orchestrator)
 ├── CONTRIBUTING.md               # Contribution guidelines
 ├── README.md                     # User-facing documentation
-├── ROADMAP.md                    # Development roadmap (currently v1.3.0)
+├── ROADMAP.md                    # Development roadmap (currently v1.6.0)
 ├── CHANGELOG.md                  # Version history
 ├── LICENSE                       # MIT license
 ├── WARP.md                       # This file (AI assistant guidance)
@@ -181,9 +187,9 @@ Use the template in `.github/PULL_REQUEST_TEMPLATE.md`:
 
 ## Version Information
 
-**Current Version**: v1.3.0  
+**Current Version**: v1.6.0  
 **Target Platform**: Fedora 41+ (tested on Rawhide)  
-**Next Milestone**: v1.4.0 (Dotfile mastery with GNU Stow)
+**Next Milestone**: v1.7.0 (Dotfile mastery with GNU Stow)
 
 ## Important Notes
 

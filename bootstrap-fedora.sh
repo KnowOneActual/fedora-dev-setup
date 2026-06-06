@@ -25,6 +25,8 @@ OPTIONS:
   --help        Show this help message
   --install     Run the full installation (System -> Python -> Tools -> Hardware -> Apps)
   --validate    Run only the validation checks
+  --backup      Export system configuration to a portable backup archive
+  --restore     Restore configuration from backup (optionally pass file path after flag)
   --dry-run     Simulate the installation without making changes
 
 EXAMPLES:
@@ -32,12 +34,16 @@ EXAMPLES:
   $0 --dry-run              # Preview changes safely
   sudo $0 --install         # Install everything
   $0 --validate             # Check if system is ready
+  $0 --backup               # Backup configurations and package lists
+  $0 --restore              # Restore config interactively
+  $0 --restore /path/file   # Restore from specific file
 EOF
 }
 
 run_script() {
     local script_name="$1"
     local script_path="$SCRIPTS_DIR/$script_name"
+    shift # Remove script_name from argument list
     
     if [[ ! -f "$script_path" ]]; then
         log_warn "Script not found: $script_name (Skipping)"
@@ -46,10 +52,10 @@ run_script() {
 
     if [[ -x "$script_path" ]]; then
         log_info "Executing $script_name..."
-        "$script_path"
+        "$script_path" "$@"
     else
         log_info "Executing $script_name (via bash)..."
-        bash "$script_path"
+        bash "$script_path" "$@"
     fi
 }
 
@@ -62,16 +68,19 @@ main() {
         echo "  1) [INSTALL]  Run full setup (System -> Apps -> Security)"
         echo "  2) [DRY RUN]  Simulate installation (No changes)"
         echo "  3) [VALIDATE] Verify existing setup"
-        echo "  4) [EXIT]     Quit"
+        echo "  4) [BACKUP]   Backup configurations & package lists"
+        echo "  5) [RESTORE]  Restore configurations & packages"
+        echo "  6) [EXIT]     Quit"
         echo ""
-        # FIX: Added -r to prevent backslash mangling (SC2162)
-        read -r -p "Enter choice [1-4]: " choice
+        read -r -p "Enter choice [1-6]: " choice
 
         case $choice in
             1) set -- "--install" ;;
             2) set -- "--dry-run" ;;
             3) set -- "--validate" ;;
-            4) exit 0 ;;
+            4) set -- "--backup" ;;
+            5) set -- "--restore" ;;
+            6) exit 0 ;;
             *) log_error "Invalid selection"; exit 1 ;;
         esac
     fi
@@ -79,15 +88,25 @@ main() {
     # 2. Argument Parsing (Standard CLI)
     local MODE=""
     export DRY_RUN="false"
+    local RESTORE_ARG=""
 
-    for arg in "$@"; do
-        case "$arg" in
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
             --help|-h) usage; exit 0 ;;
             --dry-run) export DRY_RUN="true"; log_warn "Running in DRY RUN mode." ;;
             --install) MODE="install" ;;
             --validate) MODE="validate" ;;
-            *) log_error "Unknown option: $arg"; exit 1 ;;
+            --backup) MODE="backup" ;;
+            --restore) 
+                MODE="restore" 
+                if [[ -n "${2:-}" && "${2:-}" != -* ]]; then
+                    RESTORE_ARG="$2"
+                    shift
+                fi
+                ;;
+            *) log_error "Unknown option: $1"; exit 1 ;;
         esac
+        shift
     done
 
     # Default to install if dry-run is the only flag
@@ -133,6 +152,16 @@ main() {
         validate)
             log_header "Validating Environment"
             run_script "99-validate.sh"
+            ;;
+
+        backup)
+            log_header "Exporting Configuration"
+            run_script "export-config.sh"
+            ;;
+
+        restore)
+            log_header "Restoring Configuration"
+            run_script "restore-config.sh" ${RESTORE_ARG:+"$RESTORE_ARG"}
             ;;
             
         *) usage; exit 1 ;;

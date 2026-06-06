@@ -55,12 +55,15 @@ fi
 log_info "Backing up configuration files..."
 mkdir -p "$BACKUP_DIR/configs"
 
-# Shell & Git
+# Shell, Git & Terminal Configs
 FILES_TO_BACKUP=(
     "$HOME/.bashrc"
     "$HOME/.zshrc"
     "$HOME/.gitconfig"
     "$HOME/.ssh/config"
+    "$HOME/.tmux.conf"
+    "$HOME/.zprofile"
+    "$HOME/.profile"
 )
 
 for file in "${FILES_TO_BACKUP[@]}"; do
@@ -71,6 +74,19 @@ for file in "${FILES_TO_BACKUP[@]}"; do
         log_warn "Skipped missing file: $file"
     fi
 done
+
+# Zsh Custom Configuration Directory
+ZSH_CUSTOM_DIR="$HOME/.config/zsh-custom"
+if [[ -d "$ZSH_CUSTOM_DIR" ]]; then
+    cp -r "$ZSH_CUSTOM_DIR" "$BACKUP_DIR/configs/zsh-custom"
+    log_success "Backed up zsh-custom directory"
+fi
+
+# GNOME dconf Settings
+if command_exists "dconf"; then
+    dconf dump / > "$BACKUP_DIR/configs/dconf_settings.ini" 2>/dev/null
+    log_success "Backed up GNOME/dconf settings"
+fi
 
 # VSCodium Settings
 VSCODE_USER_DIR="$HOME/.config/VSCodium/User"

@@ -5,13 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.6.0] - 2026-06-06
 
 ### Added
+- **Interactive Backup & Restore Menu** (`bootstrap-fedora.sh`): Integrated backup and restore workflows directly into the main bootstrapper CLI flags (`--backup` and `--restore`) and the interactive menu options.
+- **Interactive Backup Selection** (`scripts/restore-config.sh`): Introduced auto-scanning of backups in `~/fedora-backups/` to let the user select the latest file interactively via a numbered list.
+- **Resilient Package Recovery** (`scripts/lib/utils.sh`): Implemented `install_dnf_packages_best_effort` which falls back to individual package installation if the bulk transaction fails, preventing a single unconfigured repository or missing package from breaking the entire environment restore.
+- **Expanded Backup Scope**: Added support for backing up and restoring `.tmux.conf`, `.profile`, `.zprofile`, local shell customization folders (`~/.config/zsh-custom/`), and GNOME/desktop configurations (via `dconf` settings dump/load).
 - **Centralized Configuration** (`scripts/lib/variables.sh`): Extracted all hardcoded arrays (e.g., CLI tools, Python tools, VSCodium extensions, Node packages, Flatpaks, and validation targets) into a single configuration file for easy user customization.
 - **Enhanced Logging** (`scripts/lib/logging.sh`): Integrated `tee` to capture all command output (stdout and stderr) into timestamped log files, significantly improving debuggability.
 
 ### Fixed
+- **Home Path & File Ownership Correctness**: Resolved issue where running recovery as `sudo` would restore configuration files to the `/root` directory or leave them owned by `root`. Now resolves user home dynamically and enforces user ownership (`chown`) on all restored configurations.
+- **Robust Centralized Logging**: Adjusted logging pathing to write to root-level `<root>/logs` and check writability before logging to prevent permission-denied crashes.
 - **ShellCheck Issues**: Fixed a variable expansion bug in `scripts/10-python-dev.sh` and resolved several other linting warnings across the scripts.
 
 ## [1.5.0] - 2026-04-25

@@ -1,6 +1,6 @@
 # 🚀 Fedora Development Workstation Setup
 
-![Version](https://img.shields.io/badge/version-1.5.0-blue?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-1.6.0-blue?style=for-the-badge)
 ![Fedora](https://img.shields.io/badge/Fedora-43-blue?logo=fedora&logoColor=white&style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge)
@@ -67,6 +67,12 @@ sudo ./bootstrap-fedora.sh --install
 # Validate existing setup
 ./bootstrap-fedora.sh --validate
 
+# Backup configurations & package lists
+./bootstrap-fedora.sh --backup
+
+# Restore configuration interactively (or specify path)
+./bootstrap-fedora.sh --restore [/path/to/backup.tar.gz]
+
 # Dry Run (Safe Preview)
 ./bootstrap-fedora.sh --dry-run
 
@@ -76,25 +82,30 @@ sudo ./bootstrap-fedora.sh --install
 
 ## 💾 Backup & Restore System
 
-Moving to a new machine? Take your environment with you.
+Moving to a new machine? Take your environment with you. The backup system packages up your applications, package manifests, shell files, shell customs, and desktop shortcuts.
 
 ### Export Configuration
 
-Creates a timestamped `.tar.gz` containing your package lists, VSCodium extensions, and dotfiles (`.bashrc`, `.zshrc`, etc.).
+Creates a timestamped `.tar.gz` containing your package lists (DNF, Flatpak, Pipx, VSCodium), configs (`.bashrc`, `.zshrc`, `.zprofile`, `.profile`, `.tmux.conf`, `.gitconfig`, `.ssh/config`), custom zsh directories, and GNOME desktop settings (via `dconf`).
 
 ```bash
+# Direct export
 ./scripts/export-config.sh
-# Output: ~/fedora-backups/fedora_dev_backup_YYYYMMDD_HHMMSS.tar.gz
 
+# Or via bootstrapper menu / flag
+./bootstrap-fedora.sh --backup
 ```
 
 ### Restore Configuration
 
-Re-hydrates a fresh system from a backup file. Safe to run—it backs up existing files before overwriting.
+Re-hydrates a system from a backup. The script uses a **resilient best-effort DNF installation** flow, meaning that if a specific package is missing from repositories, it continues installing others rather than crashing. It also preserves existing files by backing them up before overwriting.
 
 ```bash
-./scripts/restore-config.sh <path_to_backup.tar.gz>
+# Interactive restore (automatically scans ~/fedora-backups/ and displays a menu)
+./bootstrap-fedora.sh --restore
 
+# Or restore from a specific archive file
+./bootstrap-fedora.sh --restore /path/to/fedora_dev_backup_YYYYMMDD_HHMMSS.tar.gz
 ```
 
 ---

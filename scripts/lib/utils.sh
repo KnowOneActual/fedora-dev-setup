@@ -48,6 +48,51 @@ install_dnf_packages() {
     fi
 }
 
+# Install DNF packages with best-effort fallback if bulk transaction fails
+install_dnf_packages_best_effort() {
+    local packages=("$@")
+    local to_install=()
+
+    for pkg in "${packages[@]}"; do
+        if ! package_installed "$pkg"; then
+            to_install+=("$pkg")
+        fi
+    done
+
+    if [[ ${#to_install[@]} -eq 0 ]]; then
+        return 0
+    fi
+
+    if [[ "${DRY_RUN:-}" == "true" ]]; then
+        log_info "[DRY RUN] Would install (best-effort) dnf packages: ${to_install[*]}"
+        return 0
+    fi
+
+    log_info "Attempting to install ${#to_install[@]} packages..."
+    if sudo dnf install -y "${to_install[@]}"; then
+        log_success "All packages installed successfully!"
+        return 0
+    fi
+
+    log_warn "Bulk package installation failed. Retrying packages individually..."
+    local failed_pkgs=()
+    for pkg in "${to_install[@]}"; do
+        log_info "Installing individual package: $pkg"
+        if ! sudo dnf install -y "$pkg"; then
+            log_warn "Failed to install package: $pkg (skipping)"
+            failed_pkgs+=("$pkg")
+        fi
+    done
+
+    if [[ ${#failed_pkgs[@]} -gt 0 ]]; then
+        log_warn "Best-effort restore finished with some failures: ${failed_pkgs[*]}"
+        return 1
+    fi
+
+    log_success "All packages successfully restored individually!"
+    return 0
+}
+
 # Ensure a directory exists with correct ownership
 ensure_directory() {
     local dir="$1"

@@ -6,13 +6,33 @@
 [[ -n "${_LOGGING_SH_LOADED:-}" ]] && return
 _LOGGING_SH_LOADED=true
 
-# Set up log directory
-LOG_DIR="logs"
-mkdir -p "$LOG_DIR"
+# Set up log directory at the repository root
+# BASH_SOURCE[0] is /path/to/fedora-dev-setup/scripts/lib/logging.sh
+LIB_DIR_ABS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR_ABS="$(cd "$LIB_DIR_ABS/../.." && pwd)"
+LOG_DIR="$ROOT_DIR_ABS/logs"
+
+# Ensure log directory exists
+if [[ ! -d "$LOG_DIR" ]]; then
+    mkdir -p "$LOG_DIR" 2>/dev/null || true
+fi
+
 CURRENT_LOG_FILE="$LOG_DIR/install-$(date +%Y%m%d-%H%M%S).log"
 
-# Capture all subsequent output (stdout and stderr) to the log file via tee
-exec > >(tee -i -a "$CURRENT_LOG_FILE") 2>&1
+# Touch the file to initialize it, if directory is writable
+if [[ -d "$LOG_DIR" && -w "$LOG_DIR" ]]; then
+    touch "$CURRENT_LOG_FILE" 2>/dev/null || true
+    # If run as root but via sudo, make it writable by the actual user so future dry-runs don't crash
+    if [[ -n "${SUDO_USER:-}" ]]; then
+        chown "$SUDO_USER:$SUDO_USER" "$CURRENT_LOG_FILE" 2>/dev/null || true
+        chown "$SUDO_USER:$SUDO_USER" "$LOG_DIR" 2>/dev/null || true
+    fi
+fi
+
+# Capture all subsequent output (stdout and stderr) to the log file via tee if writable
+if [[ -f "$CURRENT_LOG_FILE" && -w "$CURRENT_LOG_FILE" ]]; then
+    exec > >(tee -i -a "$CURRENT_LOG_FILE") 2>&1
+fi
 
 # Colors
 readonly RED='\033[0;31m'
@@ -31,8 +51,10 @@ _log() {
     # Print to console with color
     echo -e "${color}[${level}]${NC} ${msg}"
     
-    # Print to file without color, with timestamp
-    echo "[${timestamp}] [${level}] ${msg}" >> "$CURRENT_LOG_FILE"
+    # Print to file without color, with timestamp (best-effort)
+    if [[ -f "$CURRENT_LOG_FILE" && -w "$CURRENT_LOG_FILE" ]]; then
+        echo "[${timestamp}] [${level}] ${msg}" >> "$CURRENT_LOG_FILE"
+    fi
 }
 
 log_info() {
@@ -57,8 +79,10 @@ log_header() {
     echo -e "${BLUE}================================================================================${NC}"
     echo -e "${BLUE} ${msg}${NC}"
     echo -e "${BLUE}================================================================================${NC}"
-    echo "" >> "$CURRENT_LOG_FILE"
-    echo "=== ${msg} ===" >> "$CURRENT_LOG_FILE"
+    if [[ -f "$CURRENT_LOG_FILE" && -w "$CURRENT_LOG_FILE" ]]; then
+        echo "" >> "$CURRENT_LOG_FILE"
+        echo "=== ${msg} ===" >> "$CURRENT_LOG_FILE"
+    fi
 }
 
 # Export functions

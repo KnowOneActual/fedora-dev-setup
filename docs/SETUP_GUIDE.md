@@ -1,7 +1,7 @@
 # Comprehensive Fedora Development Setup Guide
 
-**Version:** 1.3.0  
-**Last Updated:** December 2025  
+**Version:** 1.6.0  
+**Last Updated:** June 2026  
 **Target Audience:** Developers setting up a fresh Fedora workstation.
 
 ---
@@ -61,7 +61,9 @@ Welcome! Please select an operation:
   1) [INSTALL]  Run full setup (System -> Apps -> Security)
   2) [DRY RUN]  Simulate installation (No changes)
   3) [VALIDATE] Verify existing setup
-  4) [EXIT]     Quit
+  4) [BACKUP]   Backup configurations & package lists
+  5) [RESTORE]  Restore configurations & packages
+  6) [EXIT]     Quit
 
 ```
 
@@ -140,18 +142,29 @@ Moving to a new machine?
 
 **Backup:**
 
-```bash
-./scripts/export-config.sh
-# Creates: ~/fedora-backups/fedora_dev_backup_DATE.tar.gz
+You can run the backup command directly, or through the main bootstrapper menu:
 
+```bash
+# Direct command
+./scripts/export-config.sh
+
+# Or via bootstrapper flag
+./bootstrap-fedora.sh --backup
 ```
+This backs up DNF, Flatpak, and Pipx package manifests, shell configurations, VS Code configs, custom Zsh additions, tmux configs, and GNOME desktop shortcut/UI configurations.
 
 **Restore:**
 
-```bash
-./scripts/restore-config.sh <path_to_backup.tar.gz>
+You can restore configurations interactively (which auto-detects backups under `~/fedora-backups/`) or pass a direct path:
 
+```bash
+# Interactive restore from local backups
+./bootstrap-fedora.sh --restore
+
+# Or direct restore from a specific archive
+./bootstrap-fedora.sh --restore /path/to/fedora_dev_backup_DATE.tar.gz
 ```
+Package restoration is resilient and best-effort; if a specific package is unavailable, it will continue to install other packages.
 
 ---
 

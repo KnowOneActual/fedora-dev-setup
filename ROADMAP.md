@@ -1,12 +1,12 @@
 # Fedora Dev Setup Bootstrap - Development Roadmap
 
-**Version:** 1.4.0  
-**Last Updated:** December 25, 2025  
+**Version:** 1.6.0  
+**Last Updated:** June 6, 2026  
 **Repository:** https://github.com/KnowOneActual/fedora-dev-setup
 
-## 🚀 Current Focus: Dotfile Mastery (v1.5.0)
+## 🚀 Current Focus: Dotfile Mastery (v1.7.0)
 
-**Target Release:** v1.5.0  
+**Target Release:** v1.7.0  
 **Status:** 🚧 Planning  
 **Goal:** Decouple configuration from the repository using GNU Stow for cleaner updates and version control.
 
@@ -19,6 +19,18 @@
 ---
 
 ## ✅ Completed Milestones
+
+### v1.6.0 - Resilient & Interactive Disaster Recovery (Released: June 6, 2026)
+- **Interactive Menu & CLI Flags:** Spliced backup and restore workflows directly into `bootstrap-fedora.sh` flags (`--backup`/`--restore`) and menu options.
+- **Interactive Backup Selection:** Added auto-discovery in `~/fedora-backups/` with a selection menu.
+- **Resilient DNF Recovery:** Implemented best-effort package installation that retries packages individually on failure.
+- **Expanded Scope:** Added backing up and restoring of tmux (`.tmux.conf`), custom zsh directories, and GNOME/dconf desktop environment configurations.
+- **Correct Path & Permission Restoration:** Resolved dynamic user home directories and user-level file ownership under sudo.
+
+### v1.5.0 - Core Shell & Repositories (Released: April 25, 2026)
+- **RPM Fusion:** Added automatic setup of Free and Nonfree repositories.
+- **Zsh Default shell:** Automated `chsh` to set Zsh as the user shell.
+- **Core Dependencies:** Sourced and installed base requirements (`tmux`, `zsh`, `jq`, etc.) directly.
 
 ### v1.4.0 - Identity & Git Automation (Released: Dec 25, 2025)
 - **Git & SSH Setup:** Added `scripts/15-git-ssh-setup.sh` to automate global identity and Ed25519 key generation.
